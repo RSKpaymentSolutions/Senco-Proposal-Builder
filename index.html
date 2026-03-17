@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Senco · Admin Proposal Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#1A73E8;--teal-l:#07F3AB;--teal-d:#1A73E8;
+  --g900:#111827;--g700:#374151;--g600:#4b5563;
+  --g500:#6b7280;--g400:#9ca3af;--g300:#d1d5db;
+  --g200:#e5e7eb;--g100:#f3f4f6;--g50:#f9fafb;
+  --navy:#0f172a;--n2:#1e293b;--n3:#334155;--n4:#475569;--n5:#64748b;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --err:#ef4444;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--navy);color:var(--g900);display:flex;flex-direction:column}
+.topbar{height:56px;background:var(--navy);border-bottom:1px solid rgba(30,41,59,.7);padding:0 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-brand{display:flex;align-items:center;gap:9px}
+.tb-logo{font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.tb-logo span{color:var(--teal)}
+.tb-badge{font-size:11px;color:var(--n5);background:var(--n2);padding:2px 9px;border-radius:20px;font-weight:600;letter-spacing:0.3px}
+.tb-mid{display:flex;gap:3px}
+.tb-right{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--font);font-size:12px;font-weight:600;border:none;border-radius:20px;cursor:pointer;padding:8px 16px;transition:all .15s;white-space:nowrap}
+.btn-p{background:#1A73E8;color:#fff;border:1px solid #1A73E8}.btn-p:hover{opacity:.88}
+.btn-g{background:#1A73E8;color:#fff;border:1px solid #1A73E8}.btn-g:hover{opacity:.88;color:#fff;border-color:#1A73E8}
+.btn-sm{padding:4px 9px;font-size:11px}
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:487px;flex-shrink:0;background:var(--navy);border-right:1px solid var(--n2);display:flex;flex-direction:column;overflow:hidden;transition:width .25s ease,min-width .25s ease;position:relative}
+.sidebar.collapsed{width:0;min-width:0;border-right:none;overflow:hidden}
+.sidebar.collapsed .s-tabs,.sidebar.collapsed .s-body{display:none}
+.app-body{position:relative}
+.sb-toggle{width:47px;height:47px;border-radius:50%;background:#1A73E8;border:2px solid #3b8cf5;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:all .2s;color:#fff;flex-shrink:0;margin-left:-24px;margin-right:-24px;align-self:center;box-shadow:0 2px 8px rgba(26,115,232,.4)}
+.sb-toggle:hover{background:#3b8cf5;border-color:#7cb8ff;box-shadow:0 3px 12px rgba(26,115,232,.5)}
+.sb-toggle svg{transition:transform .25s;width:22px;height:22px}
+.sidebar.collapsed~.sb-toggle svg{transform:rotate(180deg)}
+.s-tabs{display:flex;border-bottom:1px solid var(--n2);flex-shrink:0;padding:0 4px}
+.s-tab{flex:1;padding:10px 4px;font-size:12px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;color:var(--n4);background:transparent;border:none;cursor:pointer;transition:all .15s;border-bottom:2px solid transparent;margin-bottom:-1px}
+.s-tab:hover{color:#94a3b8}
+.s-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.s-body{padding:16px 18px;display:flex;flex-direction:column;flex:1;overflow-y:auto}
+.s-body::-webkit-scrollbar{width:2px}
+.s-body::-webkit-scrollbar-thumb{background:rgba(71,85,105,.3);border-radius:4px}
+.s-body::-webkit-scrollbar-track{background:transparent}
+.sh{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--n4);padding:11px 0 8px;border-bottom:1px solid var(--n2);margin-bottom:13px;display:flex;align-items:center;justify-content:space-between}
+.smb{margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
+.field label{font-size:12px;font-weight:600;color:#94a3b8}
+.field input,.field textarea,.field select{background:var(--n2);border:1px solid var(--n3);border-radius:8px;color:#f1f5f9;font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field textarea:focus{border-color:var(--teal)}
+.field input.err{border-color:var(--err)}
+.field textarea{resize:vertical;min-height:60px;line-height:1.5;font-size:11.5px}
+.fhint{font-size:10.5px;color:var(--n4)}
+.ferr{font-size:9.5px;color:var(--err);display:none}
+.field input.err~.ferr{display:block}
+.cb{display:flex;justify-content:space-between;align-items:center;background:var(--n2);border:1px solid var(--n3);border-left:3px solid var(--teal);border-radius:8px;padding:9px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.cb-l{font-size:10.5px;color:var(--n5);font-weight:700;letter-spacing:0.4px;text-transform:uppercase}
+.cb-v{font-size:13px;font-weight:700;color:var(--teal);font-family:var(--mono)}
+/* colored accent variants */
+.cb-green{border-left-color:#10b981}
+.cb-green .cb-v{color:#10b981}
+.cb-purple{border-left-color:#8b5cf6}
+.cb-purple .cb-v{color:#8b5cf6}
+.cb-amber{border-left-color:#f59e0b}
+.cb-amber .cb-v{color:#f59e0b}
+.af-sub{margin-bottom:8px;border:1px solid var(--n3);border-radius:9px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.af-sub-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:pointer;user-select:none;background:var(--n2)}
+.af-sub-head:hover{background:rgba(148,163,184,.1)}
+.af-sub-label{font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:.3px}
+.af-sub-btn{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;letter-spacing:.5px}
+.af-sub-btn.on{background:rgba(26,115,232,.15);color:#1A73E8}
+.af-sub-btn.off{background:rgba(239,68,68,.1);color:#ef4444}
+#af-cb-fields,#af-gw-fields,.cf-fields{padding:6px 10px 8px}
+.af-add-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:8px 0;margin-top:6px;border:1px dashed rgba(148,163,184,.35);border-radius:9px;background:transparent;color:#94a3b8;font-size:11px;font-weight:600;letter-spacing:.3px;cursor:pointer;transition:all .15s}
+.af-add-btn:hover{background:rgba(26,115,232,.06);border-color:rgba(26,115,232,.3);color:#1A73E8}
+.cf-name-input{width:100%;background:var(--n2);border:1px solid var(--n3);border-radius:6px;padding:6px 9px;color:inherit;font-size:11px;font-weight:600;margin-bottom:4px;outline:none}
+.cf-name-input:focus{border-color:var(--accent)}
+.cf-del{position:absolute;top:8px;right:8px;background:none;border:none;color:#94a3b8;cursor:pointer;padding:2px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.cf-del:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.tog{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--n2);border:1px solid var(--n3);border-radius:8px;margin-bottom:7px;cursor:pointer;transition:all .15s;user-select:none}
+.tog:hover{border-color:var(--n4)}
+.tog.on{border-color:rgba(20,184,166,.35);background:rgba(20,184,166,.05);border-left:3px solid var(--teal-l)}
+.tog-label{font-size:12px;font-weight:600;color:#94a3b8;display:flex;align-items:center;gap:7px}
+.tog.on .tog-label{color:var(--teal-l)}
+.sw{width:30px;height:17px;background:var(--n3);border-radius:9px;position:relative;transition:background .2s;flex-shrink:0}
+.sw::after{content:'';position:absolute;top:2.5px;left:2.5px;width:12px;height:12px;background:var(--n4);border-radius:50%;transition:all .2s}
+.tog.on .sw{background:var(--teal)}
+.tog.on .sw::after{left:15.5px;background:#fff}
+.mode-grp{display:flex;gap:5px;margin-bottom:8px}
+.mode-opt{flex:1;padding:8px 6px;background:var(--n2);border:1px solid var(--n3);border-radius:8px;cursor:pointer;text-align:center;font-size:11px;font-weight:600;color:var(--n5);transition:all .15s}
+.mode-opt:hover{border-color:var(--n4);color:#94a3b8}
+.mode-opt.active{background:rgba(20,184,166,.1);border-color:rgba(20,184,166,.4);color:var(--teal-l)}
+.bullet-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.bi{background:var(--n2);border:1px solid var(--n3);border-radius:8px;padding:9px 10px}
+.bi-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bi-icon{width:26px;height:26px;background:rgba(20,184,166,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:default;border:1px solid rgba(20,184,166,.2);flex-shrink:0}
+.bi-fields{flex:1;display:flex;flex-direction:column;gap:4px}
+.bi-fields input{background:var(--n3);border:1px solid var(--n4);border-radius:5px;color:#f1f5f9;font-family:var(--font);font-size:11px;padding:5px 8px;outline:none;width:100%;transition:border-color .15s}
+.bi-fields input:focus{border-color:var(--teal)}
+.bi-del{background:none;border:none;cursor:pointer;color:var(--n4);padding:3px;border-radius:4px;transition:color .15s;flex-shrink:0;align-self:flex-start;margin-top:1px}
+.bi-del:hover{color:#f87171}
+.bi-tog{flex-shrink:0;cursor:pointer;padding:2px 0}
+.bi-tog .sw{width:30px;height:17px;background:var(--n3);border-radius:9px;position:relative;transition:background .2s}
+.bi-tog .sw::after{content:'';position:absolute;top:2.5px;left:2.5px;width:12px;height:12px;background:var(--n4);border-radius:50%;transition:all .2s}
+.bi-tog.on .sw{background:var(--teal)}
+.bi-tog.on .sw::after{left:15.5px;background:#fff}
+.bi-off{opacity:0.4}
+.bi-off .bi-fields input{color:#64748b}
+.preview-pane{flex:1;overflow:auto;background:#141e33;display:flex;flex-direction:column;align-items:center;padding:26px 22px 60px;position:relative}
+#particleCanvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.preview-pane .preview-lbl,.preview-pane .rpt-outer,.preview-pane .zoom-bar{position:relative;z-index:1}
+/* ── ZOOM TOOLBAR ── */
+.zoom-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px;align-self:stretch;justify-content:space-between}
+.zoom-bar-left{display:flex;align-items:center;gap:0}
+.zoom-bar-right{display:flex;align-items:center;gap:6px}
+.zoom-btn{width:30px;height:28px;border:1px solid var(--n3);background:var(--n2);color:#94a3b8;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:var(--font);transition:all .15s;flex-shrink:0}
+.zoom-btn:hover{background:var(--n3);color:#e2e8f0;border-color:var(--n4)}
+.zoom-btn:active{background:rgba(26,115,232,.2);border-color:var(--teal)}
+.zoom-pct{min-width:48px;text-align:center;font-size:11px;font-weight:700;color:#94a3b8;font-family:var(--mono);letter-spacing:.3px;user-select:none}
+.zoom-btn-text{width:auto;padding:0 10px;font-size:10px;font-weight:600;letter-spacing:.3px}
+.zoom-divider{width:1px;height:18px;background:var(--n3);margin:0 4px}
+body.light-mode .zoom-btn{background:#e2e8f0;border-color:#d1d5db;color:var(--g600)}
+body.light-mode .zoom-btn:hover{background:#d1d5db;color:var(--g900);border-color:#9ca3af}
+body.light-mode .zoom-btn:active{background:rgba(26,115,232,.1);border-color:var(--teal)}
+body.light-mode .zoom-pct{color:var(--g500)}
+.preview-pane::-webkit-scrollbar{width:5px}
+.preview-pane::-webkit-scrollbar-thumb{background:var(--n3);border-radius:4px}
+.preview-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#2d4057;margin-bottom:14px;align-self:flex-start;display:flex;align-items:center;gap:7px}
+.preview-lbl::before{content:'';width:5px;height:5px;background:var(--teal);border-radius:50%}
+.rpt-outer{transform-origin:top center}
+.rpt-wrap{background:#fff;border-radius:3px;box-shadow:0 28px 70px rgba(0,0,0,.65)}
+.page{width:794px;padding:28px 32px 24px;display:flex;flex-direction:column;gap:14px;background:#fff;font-family:var(--font);font-size:11px;color:var(--g900);}
+/* ── GRADIENT HEADER ── */
+.rh{background:linear-gradient(135deg,#1A73E8 0%,#07F3AB 100%);border-radius:10px;padding:22px 24px 20px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:none}
+.rh-l{display:flex;flex-direction:column;gap:3px}
+.rh-brand{font-size:13px;font-weight:800;color:#111827;letter-spacing:-.3px;margin-bottom:2px}
+.rh-title{font-size:19px;font-weight:700;letter-spacing:-0.3px;line-height:1.15;color:#111827}
+.rh-title em{font-weight:300;font-style:normal;margin:0 4px;color:rgba(0,0,0,.55)}
+.rh-bar{width:30px;height:2px;background:rgba(0,0,0,.3);border-radius:2px;margin-top:5px}
+.rh-sub{font-size:9.5px;color:rgba(0,0,0,.5);margin-top:2px}
+.rh-r{text-align:right}
+.rh-rlbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.6px;color:rgba(0,0,0,.5);font-weight:600}
+.rh-rdate{font-size:14px;font-weight:700;margin-top:2px;color:#111827}
+/* ── MERCHANT ROW ── */
+.rm{display:flex;align-items:center;gap:8px}
+.rm-ico{width:32px;height:32px;background:linear-gradient(135deg,rgba(26,115,232,.08),rgba(7,243,171,.08));border:1px solid rgba(26,115,232,.15);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rm-name{font-size:13px;font-weight:700;line-height:1.2;color:#111827}
+.rm-ind{font-size:9px;color:#374151;margin-top:1px}
+.rm-pill{margin-left:auto;padding:2px 9px;border-radius:20px;font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.rm-pill-est{background:rgba(245,158,11,.1);color:#b45309;border:1px solid rgba(245,158,11,.25)}
+.rm-pill-ver{background:rgba(26,115,232,.1);color:#1A73E8;border:1px solid rgba(26,115,232,.25)}
+/* ── KPI CARDS ── */
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kc{border:1px solid var(--g200);border-radius:9px;padding:10px 12px;background:linear-gradient(160deg,#fff 60%,rgba(26,115,232,.03))}
+.kc-a{border-color:rgba(26,115,232,.3);background:linear-gradient(160deg,rgba(26,115,232,.02),rgba(7,243,171,.08))}
+.kc-lbl{display:flex;align-items:center;gap:4px;font-size:8px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#374151;margin-bottom:5px}
+.kc-val{font-size:18px;font-weight:700;letter-spacing:-.5px;line-height:1;color:#111827}
+.kc-val-a{color:#1A73E8}
+/* ── TWO-COLUMN LAYOUT ── */
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rp{display:flex;flex-direction:column;gap:10px}
+.rpt{font-size:8.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#1f2937;padding-bottom:7px;border-bottom:none;position:relative}
+.rpt::after{content:'';display:block;width:30px;height:2px;background:linear-gradient(90deg,#1A73E8,#07F3AB);border-radius:2px;margin-top:5px}
+/* ── PRICING TABLE ── */
+.rtbl{width:100%;border-collapse:collapse;font-size:9.5px}
+.rtbl thead tr{border-bottom:1.5px solid var(--g200)}
+.rtbl th{padding:3px 6px 5px;text-align:left;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151}
+.rtbl th:not(:first-child){text-align:center}
+.rtbl tbody tr{border-bottom:1px solid var(--g100)}
+.rtbl td{padding:6px 6px;color:#111827;font-weight:500}
+.rtbl td:not(:first-child){text-align:center}
+.rtbl tfoot td{padding:5px 6px;font-size:9px;font-weight:600}
+.rsub{font-size:8px;color:#4b5563;font-weight:400;display:block;margin-top:1px}
+.td-s{color:#1A73E8;font-weight:700}
+.td-n{color:#374151}
+.td-rl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#374151}
+.td-rv{font-size:10px;font-weight:700}
+/* ── RATE BARS ── */
+.rrate{display:flex;flex-direction:column;gap:5px}
+.rrate-t{font-size:8px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#374151;margin-bottom:1px}
+.rbar-r{display:flex;align-items:center;gap:6px}
+.rbar-l{font-size:9px;font-weight:500;color:#374151;width:50px;flex-shrink:0}
+.rbar-la{color:#1A73E8}
+.rbar-tr{flex:1;height:6px;background:var(--g100);border-radius:3px;overflow:hidden}
+.rbar-f{height:100%;border-radius:3px;transition:width .4s ease}
+.rbar-fg{background:var(--g300)}
+.rbar-ft{background:linear-gradient(90deg,#1A73E8,#07F3AB)}
+.rbar-p{font-size:9px;font-weight:700;color:#111827;width:32px;text-align:right;flex-shrink:0}
+.rnote2{display:flex;align-items:center;gap:3px;font-size:9px;margin-top:1px}
+/* ── FEE BREAKDOWN ── */
+.rfee{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--g200);border-radius:9px;background:linear-gradient(160deg,#fff 70%,rgba(26,115,232,.03))}
+.rfee-l{font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151;margin-bottom:3px}
+.rfee-lr{text-align:right}
+.rfee-a{font-size:16px;font-weight:700;letter-spacing:-.4px;color:#111827}
+/* ── SAVINGS BAR & HIGHLIGHT ── */
+.rsb{position:relative;height:6px;background:var(--g100);border-radius:3px;overflow:visible;margin-top:4px}
+.rsb-f{height:100%;border-radius:3px;background:linear-gradient(90deg,#1A73E8,#07F3AB)}
+.rsb-lbl{position:absolute;right:0;top:-16px;font-size:8.5px;font-weight:700;color:#1A73E8}
+.rshl{background:linear-gradient(135deg,rgba(26,115,232,.06),rgba(7,243,171,.12),rgba(26,115,232,.04));border:1px solid rgba(26,115,232,.2);border-radius:10px;padding:14px;text-align:center}
+.rshl-l{font-size:8px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#374151;margin-bottom:4px}
+.rshl-v{font-size:32px;font-weight:800;color:#1A73E8;letter-spacing:-1px;line-height:1}
+.rshl-s{font-size:9px;color:#374151;margin-top:3px}
+.rsrow{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.rsblk{border:1px solid var(--g200);border-radius:8px;padding:9px 11px;background:linear-gradient(160deg,#fff 70%,rgba(26,115,232,.03))}
+.rsblk-l{font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151;margin-bottom:2px}
+.rsblk-v{font-size:14px;font-weight:800;letter-spacing:-.3px;line-height:1.1;color:#111827}
+.rsblk-s{font-size:8.5px;color:#4b5563;margin-top:1px}
+/* ── MODULES ── */
+.mod{margin-top:2px}
+.mod-title{font-size:8.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#1f2937;margin-bottom:9px;padding-bottom:7px;border-bottom:none;position:relative}
+.mod-title::after{content:'';display:block;width:30px;height:2px;background:linear-gradient(90deg,#1A73E8,#07F3AB);border-radius:2px;margin-top:5px}
+/* ── CHART ── */
+.chart-wrap{padding:6px 0 2px}
+.chart-bars{display:flex;align-items:flex-end;gap:9px;height:88px;padding:0 2px}
+.cbar-w{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.cbar-val{font-size:7.5px;font-weight:700;color:#1A73E8;text-align:center;line-height:1.3;word-break:break-all}
+.cbar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#07F3AB,#1A73E8);min-height:3px}
+.chart-axis{display:flex;gap:9px;padding:0 2px;border-top:1.5px solid var(--g200);margin-top:1px}
+.caxis-l{flex:1;text-align:center;font-size:7.5px;font-weight:600;color:#374151;padding-top:4px;letter-spacing:.3px}
+/* ── WHY SENCO ── */
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.why-item{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;background:#fff;border-radius:8px;border:1px solid var(--g200);border-left:3px solid #1A73E8}
+.why-ico{width:24px;height:24px;background:linear-gradient(135deg,rgba(26,115,232,.1),rgba(7,243,171,.12));border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.why-body strong{font-size:9px;font-weight:700;color:#111827;display:block;line-height:1.3}
+.why-body span{font-size:8px;color:#374151;line-height:1.45;display:block;margin-top:1px}
+/* ── NOTES ── */
+.anote{background:var(--g50);border-radius:8px;padding:10px 12px;border-left:3px solid var(--g300)}
+.anote-rec{border-left-color:#1A73E8;background:linear-gradient(135deg,rgba(26,115,232,.03),rgba(7,243,171,.05))}
+.anote-t{font-size:8px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#374151;margin-bottom:4px}
+.anote-b{font-size:9.5px;color:#111827;line-height:1.6}
+/* ── DISCLAIMER ── */
+.disc{display:flex;align-items:center;gap:6px;padding:7px 10px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.18);border-radius:7px;font-size:8.5px;color:#92400e}
+.disc-ver{background:rgba(26,115,232,.05);border-color:rgba(26,115,232,.18);color:#1A73E8}
+/* ── FOOTER ── */
+.rfoot{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1.5px solid var(--g200);margin-top:auto}
+.rfoot-brand{display:flex;align-items:center;gap:5px}
+.rfoot-logo{font-size:11px;font-weight:800;letter-spacing:-.3px;color:#1A73E8}
+.rfoot-dot{color:var(--g300);font-size:10px}
+.rfoot-tag{font-size:9px;color:#374151}
+.rfoot-conf{font-size:8.5px;color:#374151;font-style:italic}
+.ta{color:#1A73E8!important}
+.mu{color:#374151}
+.internal-only{border:1px solid rgba(245,158,11,0.18);border-radius:10px;padding:10px 12px 4px;background:rgba(245,158,11,0.03);}
+.internal-tag{font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#92400e;background:rgba(245,158,11,0.15);padding:1px 7px;border-radius:20px;}
+.eco-inputs{display:flex;flex-direction:column;gap:0;padding:9px 12px 4px;background:rgba(0,0,0,0.12);border-radius:9px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.04);}
+.eco-inputs .field{margin-bottom:8px}
+.eco-inputs .field label{color:#64748b}
+.eco-inputs .field input{background:#0f172a;border-color:#1e293b;font-size:12px;}
+.eco-inputs .field input:focus{border-color:#f59e0b}
+.eco-inputs .field input.err{border-color:var(--err)}
+.eco-step-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#334155;margin-bottom:7px;margin-top:2px;}
+.cb-eco-ro{background:rgba(0,0,0,0.2)!important;border-color:rgba(255,255,255,0.04)!important;margin-bottom:4px;}
+.cb-eco-ro .cb-l{color:#475569}
+.cb-eco-ro .cb-v{color:#94a3b8;font-size:11px}
+.eco-divider{display:flex;align-items:center;gap:8px;margin:4px 0 8px;font-size:8.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#334155;}
+.eco-divider::before,.eco-divider::after{content:'';flex:1;height:1px;background:#1e293b;}
+.eco-disclaimer{display:flex;align-items:flex-start;gap:5px;margin:8px 0 4px;padding:6px 8px;background:rgba(26,115,232,0.06);border:1px solid rgba(26,115,232,0.15);border-radius:6px;font-size:8.5px;color:#1A73E8;line-height:1.5;}
+.eco-disclaimer svg{flex-shrink:0;margin-top:1px;opacity:.7}
+.cb-senco .cb-v{color:#1A73E8}
+.cb-agent .cb-v{color:#7cb8ff}
+.cb-eco-neutral .cb-v{color:#94a3b8}
+.health-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:20px;}
+.health-green{background:rgba(26,115,232,.15);color:#1A73E8}
+.health-yellow{background:rgba(245,158,11,.15);color:#b45309}
+.health-red{background:rgba(239,68,68,.15);color:#b91c1c}
+@page{size:A4;margin:12mm}
+@media print{
+  body *{visibility:hidden!important}
+  #report-root,#report-root *{visibility:visible!important}
+  .internal-only{display:none!important}
+  #report-root{position:fixed!important;top:0!important;left:0!important;width:100%!important;margin:0!important;padding:0!important;transform:none!important;}
+  .rpt-outer{transform:none!important;margin:0!important}
+  .rpt-wrap{box-shadow:none!important;border-radius:0!important}
+  .page{width:100%!important;padding:0!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
+
+  /* ── AGENT REPORT BUTTON ── */
+  .btn-agent-report{background:#1A73E8;color:#fff;border:1px solid #1A73E8}.btn-agent-report:hover{opacity:.88}
+  /* ── AGENT REPORT MODAL ── */
+  .ar-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+  .ar-modal{background:#1a2540;border:1px solid rgba(26,115,232,.25);border-radius:14px;width:520px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .ar-modal-head{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+  .ar-modal-title{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+  .ar-modal-badge{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
+  .ar-modal-close{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px}
+  .ar-modal-close:hover{color:#fff}
+  .ar-modal-body{padding:18px 20px}
+  .ar-merchant{font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:14px}
+  .ar-merchant span{color:rgba(255,255,255,.4);font-weight:400}
+  .ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .ar-block{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 12px}
+  .ar-block-title{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px}
+  .ar-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .ar-row:last-child{border-bottom:none}
+  .ar-label{font-size:11px;color:rgba(255,255,255,.5)}
+  .ar-val{font-size:11px;font-weight:700;color:#e2e8f0}
+  .ar-val-green{color:#07F3AB}
+  .ar-val-indigo{color:#7cb8ff}
+  .ar-modal-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px}
+  .ar-btn-pdf{flex:1;padding:9px 0;border-radius:7px;border:none;background:linear-gradient(135deg,#1A73E8,#07F3AB);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
+  .ar-btn-pdf:hover{opacity:.88}
+  .ar-btn-copy{flex:1;padding:9px 0;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+  .ar-btn-copy:hover{background:rgba(255,255,255,.09);color:#fff}
+  .ar-btn-copy.copied{border-color:rgba(7,243,171,.4);color:#07F3AB}
+  .ar-send-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+  .ar-send-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(26,115,232,.8);display:flex;align-items:center;gap:5px}
+  .ar-send-inputs{display:flex;gap:7px}
+  .ar-email-input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:7px 10px;font-size:12px;font-family:inherit;color:#e2e8f0;outline:none;transition:border .15s}
+  .ar-email-input:focus{border-color:rgba(26,115,232,.5)}
+  .ar-email-input::placeholder{color:rgba(255,255,255,.25)}
+  .ar-btn-send{padding:7px 14px;border-radius:6px;border:none;background:rgba(26,115,232,.7);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:background .15s;white-space:nowrap}
+  .ar-btn-send:hover{background:rgba(26,115,232,.9)}
+  .ar-btn-send.sent{background:rgba(7,243,171,.3);color:#07F3AB}
+  .ar-send-hint{font-size:10px;color:rgba(255,255,255,.25);line-height:1.4}
+  /* Agent earnings big cells */
+  .ar-earn-cell{padding:10px 12px}
+  .ar-earn-label{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:5px}
+  .ar-earn-val{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1;color:#e2e8f0}
+  /* Portfolio projection table */
+  .ar-proj-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px}
+  .ar-proj-table thead tr{border-bottom:1px solid rgba(255,255,255,.08)}
+  .ar-proj-table th{padding:4px 8px 7px;text-align:left;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.3)}
+  .ar-proj-table th:not(:first-child){text-align:right}
+  .ar-proj-table tbody tr{border-bottom:1px solid rgba(255,255,255,.05)}
+  .ar-proj-table tbody tr:last-child{border-bottom:none}
+  .ar-proj-table td{padding:7px 8px;font-weight:600;color:rgba(255,255,255,.6)}
+  .ar-proj-table td:not(:first-child){text-align:right;font-weight:700;color:#e2e8f0}
+  .ar-proj-row-5 td{background:rgba(26,115,232,.05)}
+  .ar-proj-row-10 td{background:rgba(26,115,232,.09)}
+  .ar-proj-name{font-weight:700;color:#e2e8f0!important}
+  .ar-proj-name span{display:block;font-size:9px;color:rgba(255,255,255,.3);font-weight:400;margin-top:1px}
+  .ar-proj-highlight{color:#07F3AB!important}
+  .ar-proj-disclaimer{font-size:9px;color:rgba(255,255,255,.22);line-height:1.5;padding-top:7px;border-top:1px solid rgba(255,255,255,.05);margin-top:2px}
+
+  /* ── SENCO REPORT BUTTON ── */
+  .btn-senco-report{background:#1A73E8;color:#fff;border:1px solid #1A73E8}
+  .btn-senco-report:hover{opacity:.88}
+
+  /* ── SENCO ECONOMICS REPORT MODAL ── */
+  .sr-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+  .sr-modal{background:#1a2540;border:1px solid rgba(26,115,232,.25);border-radius:14px;width:560px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .sr-modal-head{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+  .sr-modal-title{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+  .sr-modal-badge{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:8px;background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
+  .sr-modal-close{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px}
+  .sr-modal-close:hover{color:#fff}
+  .sr-modal-body{padding:18px 20px}
+  .sr-merchant{font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:14px}
+  .sr-merchant span{color:rgba(255,255,255,.4);font-weight:400}
+  .sr-block{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 12px}
+  .sr-block-title{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px}
+  .sr-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .sr-row:last-child{border-bottom:none}
+  .sr-label{font-size:11px;color:rgba(255,255,255,.5)}
+  .sr-val{font-size:11px;font-weight:700;color:#e2e8f0}
+  .sr-val-teal{color:#07F3AB}
+  .sr-val-amber{color:#1A73E8}
+  .sr-earn-cell{padding:10px 12px}
+  .sr-earn-label{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:5px}
+  .sr-earn-val{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1;color:#e2e8f0}
+  /* Revenue Projection table styles removed — MVP focuses on single deal economics */
+  .sr-modal-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px}
+  .sr-btn-pdf{flex:1;padding:9px 0;border-radius:7px;border:none;background:linear-gradient(135deg,#1A73E8,#07F3AB);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s}
+  .sr-btn-pdf:hover{opacity:.88}
+  .sr-btn-copy{flex:1;padding:9px 0;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+  .sr-btn-copy:hover{background:rgba(255,255,255,.09);color:#fff}
+  .sr-btn-copy.copied{border-color:rgba(7,243,171,.4);color:#07F3AB}
+
+  /* ── DAY/NIGHT THEME TOGGLE ── */
+  .btn-theme{background:transparent;border:none;color:var(--n5);padding:6px;border-radius:8px;cursor:pointer;font-size:18px;line-height:1;transition:all .15s;display:flex;align-items:center;justify-content:center}
+  .btn-theme:hover{color:#e2e8f0;background:rgba(255,255,255,.06)}
+  .btn-theme .icon-sun{display:none}
+  .btn-theme .icon-moon{display:block;line-height:0}
+  body.light-mode .btn-theme .icon-sun{display:block;line-height:0}
+  body.light-mode .btn-theme .icon-moon{display:none}
+
+  /* ── LIGHT MODE OVERRIDES ── */
+  body.light-mode{background:#f1f5f9;color:var(--g900)}
+  body.light-mode .topbar{background:#ffffff;border-bottom-color:#e2e8f0}
+  body.light-mode .tb-logo{color:var(--g900)}
+  body.light-mode .tb-badge{background:#e2e8f0;color:var(--g500)}
+  body.light-mode .btn-g{background:#1A73E8;color:#fff;border-color:#1A73E8}
+  body.light-mode .btn-g:hover{opacity:.88;color:#fff;border-color:#1A73E8}
+  body.light-mode .btn-agent-report{background:#1A73E8;color:#fff;border-color:#1A73E8}
+  body.light-mode .btn-senco-report{background:#1A73E8;color:#fff;border-color:#1A73E8}
+  body.light-mode .btn-theme{background:transparent;border:none;color:var(--g400)}
+  body.light-mode .btn-theme:hover{color:var(--g900);background:rgba(0,0,0,.05)}
+  body.light-mode .sidebar{background:#ffffff;border-right-color:#e2e8f0}
+  body.light-mode .sb-toggle{background:#1A73E8;border-color:#3b8cf5;color:#fff;box-shadow:0 2px 8px rgba(26,115,232,.3)}
+  body.light-mode .sb-toggle:hover{background:#3b8cf5;border-color:#7cb8ff;box-shadow:0 3px 12px rgba(26,115,232,.4)}
+  body.light-mode .s-tabs{border-bottom-color:#e2e8f0}
+  body.light-mode .s-tab{color:var(--g400)}
+  body.light-mode .s-tab:hover{color:var(--g700)}
+  body.light-mode .s-tab.active{color:var(--teal)}
+  body.light-mode .sh{color:var(--g500);border-bottom-color:#e2e8f0}
+  body.light-mode .field label{color:var(--g600)}
+  body.light-mode .field input,body.light-mode .field textarea,body.light-mode .field select{background:#f8fafc;border-color:#d1d5db;color:var(--g900)}
+  body.light-mode .field input:focus,body.light-mode .field textarea:focus{border-color:var(--teal)}
+  body.light-mode .fhint{color:var(--g400)}
+  body.light-mode .cb{background:#f8fafc;border-color:#d1d5db;border-left:3px solid var(--teal)}
+  body.light-mode .cb-green{border-left-color:#10b981}
+  body.light-mode .cb-green .cb-v{color:#059669}
+  body.light-mode .cb-purple{border-left-color:#8b5cf6}
+  body.light-mode .cb-purple .cb-v{color:#7c3aed}
+  body.light-mode .cb-amber{border-left-color:#f59e0b}
+  body.light-mode .cb-amber .cb-v{color:#d97706}
+  body.light-mode .cb-l{color:var(--g500)}
+  body.light-mode .cb-v{color:var(--teal)}
+  body.light-mode .cb-senco .cb-v{color:#1A73E8}
+  body.light-mode .cb-agent .cb-v{color:#1A73E8}
+  body.light-mode .cb-eco-neutral .cb-v{color:var(--g600)}
+  body.light-mode .af-sub{border-color:#d1d5db}
+  body.light-mode .af-sub-head{background:#f1f5f9}
+  body.light-mode .af-sub-label{color:var(--g600)}
+  body.light-mode .af-add-btn{border-color:#d1d5db;color:var(--g500)}
+  body.light-mode .af-add-btn:hover{background:rgba(26,115,232,.04);border-color:rgba(26,115,232,.3);color:#1A73E8}
+  body.light-mode .cf-name-input{background:#f8fafc;border-color:#d1d5db;color:var(--g700)}
+  body.light-mode .tog{background:#f8fafc;border-color:#d1d5db}
+  body.light-mode .tog:hover{border-color:#9ca3af}
+  body.light-mode .tog-label{color:var(--g600)}
+  body.light-mode .tog.on{border-left:3px solid var(--teal-d)}
+  body.light-mode .tog.on .tog-label{color:var(--teal-d)}
+  body.light-mode .sw{background:#d1d5db}
+  body.light-mode .sw::after{background:#9ca3af}
+  body.light-mode .preview-pane{background:#e2e8f0}
+  body.light-mode .preview-lbl{color:#94a3b8}
+  body.light-mode .s-body::-webkit-scrollbar-thumb{background:#d1d5db}
+  body.light-mode .eco-inputs{background:rgba(0,0,0,.03);border-color:#e2e8f0}
+  body.light-mode .eco-inputs .field label{color:var(--g500)}
+  body.light-mode .eco-inputs .field input{background:#fff;border-color:#d1d5db}
+  body.light-mode .eco-inputs .field input:focus{border-color:#f59e0b}
+  body.light-mode .eco-step-label{color:var(--g400)}
+  body.light-mode .eco-divider{color:var(--g400)}
+  body.light-mode .eco-divider::before,body.light-mode .eco-divider::after{background:#e2e8f0}
+  body.light-mode .cb-eco-ro{background:rgba(0,0,0,.03)!important;border-color:#e2e8f0!important}
+  body.light-mode .cb-eco-ro .cb-l{color:var(--g500)}
+  body.light-mode .cb-eco-ro .cb-v{color:var(--g600)}
+  body.light-mode .internal-only{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.04)}
+  body.light-mode .internal-tag{color:#92400e}
+  body.light-mode .eco-disclaimer{background:rgba(26,115,232,.04);border-color:rgba(26,115,232,.12);color:#1A73E8}
+  body.light-mode .health-pill{font-weight:800}
+  body.light-mode .mode-opt{background:#f8fafc;border-color:#d1d5db;color:var(--g500)}
+  body.light-mode .mode-opt:hover{border-color:#9ca3af;color:var(--g700)}
+  body.light-mode .mode-opt.active{background:rgba(20,184,166,.06);border-color:rgba(20,184,166,.3);color:var(--teal-d)}
+  body.light-mode .bi{background:#f8fafc;border-color:#d1d5db}
+  body.light-mode .bi-fields input{background:#fff;border-color:#d1d5db;color:var(--g900)}
+  body.light-mode .bi-fields input:focus{border-color:var(--teal)}
+  body.light-mode .bi-tog .sw{background:#d1d5db}
+  body.light-mode .bi-tog .sw::after{background:#9ca3af}
+  body.light-mode .bi-off .bi-fields input{color:#9ca3af}
+
+  /* ── SAVED REPORTS MODAL ── */
+  .sv-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+  .sv-modal{background:#1a2540;border:1px solid rgba(26,115,232,.25);border-radius:14px;width:600px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .sv-modal-head{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+  .sv-modal-title{font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+  .sv-modal-close{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px}
+  .sv-modal-close:hover{color:#fff}
+  .sv-modal-body{padding:6px 16px;max-height:500px;overflow-y:auto}
+  .sv-modal-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:flex-end;gap:8px}
+  .sv-card{padding:14px;margin:8px 0;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;transition:border-color .15s}
+  .sv-card:hover{border-color:rgba(26,115,232,.2)}
+  .sv-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .sv-row-info{flex:1;min-width:0}
+  .sv-row-name{font-size:13px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sv-row-meta{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px}
+  .sv-row-actions{display:flex;gap:6px;flex-shrink:0}
+  .sv-btn-load{font-family:var(--font);font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;border:1px solid rgba(26,115,232,.4);background:rgba(26,115,232,.12);color:#7cb8ff;cursor:pointer;transition:all .15s}
+  .sv-btn-load:hover{background:rgba(26,115,232,.25);border-color:rgba(26,115,232,.6)}
+  .sv-btn-del{font-family:var(--font);font-size:13px;padding:4px 8px;border-radius:6px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.08);color:#f87171;cursor:pointer;transition:all .15s;line-height:1}
+  .sv-btn-del:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)}
+  .sv-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)}
+  .sv-met{display:flex;flex-direction:column;gap:3px}
+  .sv-met-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:2px}
+  .sv-met-row{display:flex;justify-content:space-between;align-items:center;gap:4px}
+  .sv-met-k{font-size:9.5px;color:rgba(255,255,255,.3);font-weight:500}
+  .sv-met-v{font-size:10.5px;font-weight:700;color:#e2e8f0;text-align:right}
+  .sv-v-blue{color:#7cb8ff}
+  .sv-v-mint{color:#07F3AB}
+  .sv-empty{text-align:center;padding:32px 0;color:rgba(255,255,255,.25);font-size:12px;font-weight:500}
+  .sv-badge{font-size:9px;font-weight:700;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:8px;background:linear-gradient(135deg,#1A73E8,#07F3AB);color:#fff;display:inline-block;margin-left:4px}
+  .sv-badge:empty{display:none}
+  body.light-mode .sv-modal{background:#fff;border-color:rgba(26,115,232,.15);box-shadow:0 24px 60px rgba(0,0,0,.12)}
+  body.light-mode .sv-modal-head{border-bottom-color:rgba(0,0,0,.06)}
+  body.light-mode .sv-modal-title{color:#1f2937}
+  body.light-mode .sv-modal-close{color:#9ca3af}
+  body.light-mode .sv-modal-close:hover{color:#374151}
+  body.light-mode .sv-modal-foot{border-top-color:rgba(0,0,0,.06)}
+  body.light-mode .sv-card{background:rgba(0,0,0,.02);border-color:rgba(0,0,0,.06)}
+  body.light-mode .sv-card:hover{border-color:rgba(26,115,232,.2)}
+  body.light-mode .sv-card-head{border-bottom-color:rgba(0,0,0,.04)}
+  body.light-mode .sv-row-name{color:#1f2937}
+  body.light-mode .sv-row-meta{color:#6b7280}
+  body.light-mode .sv-metrics{border-top-color:rgba(0,0,0,.06)}
+  body.light-mode .sv-met-label{color:#6b7280}
+  body.light-mode .sv-met-k{color:#9ca3af}
+  body.light-mode .sv-met-v{color:#1f2937}
+  body.light-mode .sv-v-blue{color:#1A73E8}
+  body.light-mode .sv-v-mint{color:#059669}
+  body.light-mode .sv-btn-load{background:rgba(26,115,232,.06);border-color:rgba(26,115,232,.2);color:#1A73E8}
+  body.light-mode .sv-btn-load:hover{background:rgba(26,115,232,.12);border-color:rgba(26,115,232,.35)}
+  body.light-mode .sv-btn-del{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15);color:#dc2626}
+  body.light-mode .sv-empty{color:#9ca3af}
+  .btn-disabled{opacity:0.4;pointer-events:none;cursor:default}
+
+  /* ── HERO EXPORT PDF BUTTON ── */
+  .btn-hero{background:#1A73E8;color:#fff;border:none;font-weight:700;letter-spacing:.2px;box-shadow:0 2px 8px rgba(26,115,232,.3)}
+  .btn-hero:hover{opacity:.9;box-shadow:0 3px 12px rgba(26,115,232,.4)}
+  body.light-mode .btn-hero{box-shadow:0 2px 8px rgba(26,115,232,.2)}
+
+  /* ── EXPORT DROPDOWN ── */
+  .export-wrap{position:relative;display:inline-flex}
+  .export-dd{position:absolute;top:calc(100% + 6px);right:0;min-width:220px;background:var(--n2);border:1px solid var(--n3);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.35);padding:6px;z-index:100;opacity:0;visibility:hidden;transform:translateY(-4px);transition:all .15s ease}
+  .export-wrap.open .export-dd{opacity:1;visibility:visible;transform:translateY(0)}
+  .export-dd-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border:none;background:transparent;color:#e2e8f0;font-family:var(--font);font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;transition:all .12s;text-align:left}
+  .export-dd-item:hover{background:rgba(26,115,232,.15);color:#fff}
+  .export-dd-item svg{flex-shrink:0;opacity:.5}
+  .export-dd-item:hover svg{opacity:1}
+  .export-dd-sep{height:1px;background:var(--n3);margin:4px 6px}
+  body.light-mode .export-dd{background:#fff;border-color:#e2e8f0;box-shadow:0 12px 32px rgba(0,0,0,.12)}
+  body.light-mode .export-dd-item{color:var(--g700)}
+  body.light-mode .export-dd-item:hover{background:rgba(26,115,232,.08);color:#1A73E8}
+  body.light-mode .export-dd-sep{background:#e2e8f0}
+
+  /* ── SECTION HEADER ICON ── */
+  .sh-ico{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:6px}
+  .sh-ico-blue{background:rgba(26,115,232,.12)}
+  .sh-ico-green{background:rgba(16,185,129,.12)}
+  .sh-ico-purple{background:rgba(139,92,246,.12)}
+  .sh-ico-amber{background:rgba(245,158,11,.12)}
+
+  /* ── SIDEBAR FOOTER ── */
+  .s-footer{padding:12px 18px;border-top:1px solid var(--n2);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .s-footer-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A73E8,#07F3AB);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-.3px}
+  .s-footer-info{flex:1;min-width:0}
+  .s-footer-name{font-size:11px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .s-footer-role{font-size:9px;color:var(--n5);font-weight:500}
+  body.light-mode .s-footer{border-top-color:#e2e8f0}
+  body.light-mode .s-footer-name{color:var(--g900)}
+  body.light-mode .s-footer-role{color:var(--g500)}
+
+  /* ── POLISHED INTERNAL TAG ── */
+  .internal-tag{font-size:8px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#f59e0b;background:rgba(245,158,11,0.12);padding:2px 8px;border-radius:20px;border:1px solid rgba(245,158,11,.2)}
+  body.light-mode .internal-tag{color:#b45309;background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)}
+
+  /* ── HEALTH PILL REFINEMENT ── */
+  .health-pill{padding:2px 10px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.3px;border:1px solid transparent}
+  .health-green{background:rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.25)}
+  .health-yellow{background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.25)}
+  .health-red{background:rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.25)}
+
+  /* light mode card shadows */
+  body.light-mode .cb{box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  body.light-mode .af-sub{box-shadow:0 1px 3px rgba(0,0,0,.06)}
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">sen<span>co</span></div>
+    <div class="tb-badge">Admin · Proposal Builder</div>
+  </div>
+  <div class="tb-mid"></div>
+  <div class="tb-right">
+    <button class="btn btn-theme" onclick="toggleTheme()" title="Toggle light / dark mode" id="themeToggle">
+      <span class="icon-moon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+      <span class="icon-sun"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
+    </button>
+    <button class="btn btn-g" id="btnSave" onclick="saveReport()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save
+    </button>
+    <button class="btn btn-g" id="btnSaved" onclick="showSavedReportsModal()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      Saved<span class="sv-badge" id="svBadge"></span>
+    </button>
+    <button class="btn btn-g" onclick="resetReport()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      Reset
+    </button>
+    <div class="export-wrap" id="exportWrap">
+      <button class="btn btn-hero" onclick="toggleExportDD(event)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="export-dd">
+        <button class="export-dd-item" onclick="exportPDF();closeExportDD()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Merchant Report (PDF)
+        </button>
+        <div class="export-dd-sep"></div>
+        <button class="export-dd-item" onclick="showAgentReportModal();closeExportDD()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Agent Earnings Report
+        </button>
+        <div class="export-dd-sep"></div>
+        <button class="export-dd-item" onclick="showSencoReportModal();closeExportDD()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Internal Economics Report
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="app-body">
+  <div class="sidebar" id="sidebar">
+    <div class="s-tabs">
+      <button class="s-tab active" onclick="switchTab('data',this)">Data</button>
+      <button class="s-tab" onclick="switchTab('modules',this)">Modules</button>
+      <button class="s-tab" onclick="switchTab('content',this)">Content</button>
+    </div>
+    <div id="tab-data" class="s-body">
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-blue"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Merchant Info</span></div>
+        <div class="field"><label>Merchant Name</label><input id="merchant_name" value="Hello Batch CBD" oninput="update()"/></div>
+        <div class="field"><label>Industry</label><input id="industry" value="CBD E-commerce" oninput="update()"/></div>
+        <div class="field"><label>Report Date</label><input id="report_date" type="date" value="2026-03-02" oninput="update()"/></div>
+      </div>
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-green"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Processing Data</span></div>
+        <div class="field"><label>Monthly Volume ($)</label><input id="monthly_volume" type="number" value="5579286.05" step="1000" oninput="update()"/></div>
+        <div class="field"><label>Transactions</label><input id="transactions" type="number" value="73599" oninput="update()"/></div>
+        <div class="field"><label>Current AVS per Txn ($)</label><input id="avs_per_txn" type="number" value="0.10" step="0.01" oninput="update()"/></div>
+        <div class="field"><label>Optimized AVS per Txn ($)</label><input id="optimized_avs_per_txn" type="number" value="0.10" step="0.01" oninput="update()"/>
+          <span class="fhint">Lower = AVS savings in report</span>
+        </div>
+      </div>
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-purple"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>Rates</span></div>
+        <div class="field">
+          <label>Pricing Model</label>
+          <select id="pricing_model" onchange="onPricingModelChange();update()">
+            <option value="blended" selected>Blended Rate</option>
+            <option value="interchange">Interchange+</option>
+            <option value="flat">Flat Rate</option>
+          </select>
+        </div>
+        <!-- Blended Rate fields (default) -->
+        <div id="pm-blended">
+          <div class="field">
+            <label>Current Rate (%)</label>
+            <input id="current_rate" type="number" value="2.60" step="0.01" min="0" max="10" oninput="update()"/>
+          </div>
+          <div class="field">
+            <label>Optimized Rate (%)</label>
+            <input id="optimized_rate" type="number" value="2.51" step="0.01" min="0" max="10" oninput="update()"/>
+            <span class="fhint">Must be lower than current rate</span>
+            <span class="ferr" id="rate_err">Must be lower than current rate</span>
+          </div>
+        </div>
+        <!-- Interchange+ fields -->
+        <div id="pm-interchange" style="display:none">
+          <div class="field">
+            <label>Interchange Estimate (%)</label>
+            <input id="ic_estimate" type="number" value="1.70" step="0.01" min="0" max="10" oninput="update()"/>
+            <span class="fhint">Average interchange cost</span>
+          </div>
+          <div class="field">
+            <label>Card Brand Assessments (%)</label>
+            <input id="ic_assessments" type="number" value="0.14" step="0.01" min="0" max="5" oninput="update()"/>
+            <span class="fhint">Visa/MC/Amex assessments</span>
+          </div>
+          <div class="field">
+            <label>Processor Markup (%)</label>
+            <input id="ic_proc_markup" type="number" value="0.50" step="0.01" min="0" max="5" oninput="update()"/>
+            <span class="fhint">Current processor markup over IC</span>
+          </div>
+          <div class="field">
+            <label>Optimized Markup (%)</label>
+            <input id="ic_opt_markup" type="number" value="0.35" step="0.01" min="0" max="5" oninput="update()"/>
+            <span class="fhint">Senco optimized markup</span>
+          </div>
+        </div>
+        <!-- Flat Rate fields -->
+        <div id="pm-flat" style="display:none">
+          <div class="field">
+            <label>Flat Rate (%)</label>
+            <input id="flat_rate" type="number" value="2.90" step="0.01" min="0" max="10" oninput="update()"/>
+            <span class="fhint">Single flat rate for all transactions</span>
+          </div>
+          <div class="field">
+            <label>Optimized Rate (%)</label>
+            <input id="flat_rate_optimized" type="number" value="2.60" step="0.01" min="0" max="10" oninput="update()"/>
+            <span class="fhint">Must be lower than flat rate</span>
+          </div>
+        </div>
+      </div>
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-amber"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Additional Fee Opportunities</span></div>
+        <div class="af-sub">
+          <div class="af-sub-head" onclick="toggleAfSub('cb',this)">
+            <span class="af-sub-label">Chargeback Fees</span>
+            <span class="af-sub-btn on" id="af-cb-btn">ON</span>
+          </div>
+          <div id="af-cb-fields">
+            <div class="field"><label>Current Chargeback Fee ($)</label><input id="cb_fee_current" type="number" value="" step="1" min="0" oninput="update()"/></div>
+            <div class="field"><label>Optimized Chargeback Fee ($)</label><input id="cb_fee_optimized" type="number" value="" step="1" min="0" oninput="update()"/></div>
+            <div class="field"><label>Monthly Chargebacks (#)</label><input id="monthly_chargebacks" type="number" value="" step="1" min="0" oninput="update()"/></div>
+            <div class="cb" style="margin-top:4px"><span class="cb-l">Chargeback Savings/mo</span><span class="cb-v" id="af_cb_savings">—</span></div>
+          </div>
+        </div>
+        <div class="af-sub">
+          <div class="af-sub-head" onclick="toggleAfSub('gw',this)">
+            <span class="af-sub-label">Gateway / Platform Fee</span>
+            <span class="af-sub-btn on" id="af-gw-btn">ON</span>
+          </div>
+          <div id="af-gw-fields">
+            <div class="field"><label>Current Gateway / Platform Fee ($/mo)</label><input id="gw_fee_current" type="number" value="" step="1" min="0" oninput="update()"/></div>
+            <div class="field"><label>Optimized Gateway / Platform Fee ($/mo)</label><input id="gw_fee_optimized" type="number" value="" step="1" min="0" oninput="update()"/></div>
+            <div class="cb" style="margin-top:4px"><span class="cb-l" id="af_gw_label">Gateway/Platform Fee/mo</span><span class="cb-v" id="af_gw_savings">—</span></div>
+          </div>
+        </div>
+        <div id="custom-fees-container"></div>
+        <button class="af-add-btn" onclick="addCustomFee()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Fee Opportunity</button>
+        <div style="border-top:1px solid rgba(148,163,184,.15);margin-top:8px;padding-top:8px">
+          <div class="cb" style="font-weight:600"><span class="cb-l">Net Additional Impact/mo</span><span class="cb-v" id="af_total">—</span></div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="tog" id="tog-addlfees" data-mod="addlfees" onclick="toggleMod('addlfees',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Include Additional Fees in Report</span><div class="sw"></div></div>
+        </div>
+      </div>
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-green"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>Computed Results</span></div>
+        <div class="cb"><span class="cb-l">Effective Rate (Current)</span><span class="cb-v" id="cr_eff_current">—</span></div>
+        <div class="cb cb-green"><span class="cb-l">Effective Rate (Optimized)</span><span class="cb-v" id="cr_eff_optimized">—</span></div>
+        <div style="border-top:1px solid rgba(148,163,184,.12);margin:6px 0"></div>
+        <div class="cb"><span class="cb-l">Monthly Cost (Current)</span><span class="cb-v" id="cr_cost_current">—</span></div>
+        <div class="cb cb-green"><span class="cb-l">Monthly Cost (Optimized)</span><span class="cb-v" id="cr_cost_optimized">—</span></div>
+        <div style="border-top:1px solid rgba(148,163,184,.12);margin:6px 0"></div>
+        <div class="cb cb-green"><span class="cb-l">Monthly Savings</span><span class="cb-v" id="c_mo">—</span></div>
+        <div class="cb"><span class="cb-l">Annual Savings</span><span class="cb-v" id="c_yr">—</span></div>
+        <div class="cb cb-purple"><span class="cb-l">3-Year Savings</span><span class="cb-v" id="c_3y">—</span></div>
+        <div class="cb cb-amber"><span class="cb-l">Basis Points Saved</span><span class="cb-v" id="c_bp">—</span></div>
+      </div>
+      <div class="smb internal-only">
+        <div class="sh">
+          <span style="display:flex;align-items:center;gap:6px">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Senco Economics
+          </span>
+          <span class="internal-tag">Internal</span>
+        </div>
+        <div class="eco-inputs">
+          <div class="eco-step-label">Step 1 — Hard Costs</div>
+          <div class="field">
+            <label>Interchange Estimate (%)</label>
+            <input id="ic_interchange" type="number" value="1.85" step="0.01" min="0" max="10" oninput="update()"/>
+            <span class="fhint">Blended interchange passthrough</span>
+          </div>
+          <div class="field">
+            <label>Processor / BIN Cost (%)</label>
+            <input id="ic_processor" type="number" value="0.25" step="0.01" min="0" max="10" oninput="update()"/>
+            <span class="fhint">Processor fees + BIN sponsor costs</span>
+          </div>
+          <div class="cb cb-eco-ro"><span class="cb-l">Total Hard Cost (%)</span><span class="cb-v" id="e_hard_cost_pct">—</span></div>
+          <div class="eco-step-label" style="margin-top:10px">Step 2 — Margin Split</div>
+          <div class="field">
+            <label>Senco Share of Gross Margin (%)</label>
+            <input id="senco_share" type="number" value="60" step="1" min="0" max="100" oninput="update()"/>
+            <span class="fhint">Senco's portion of gross margin pool</span>
+          </div>
+          <div class="field">
+            <label>Agent Split of Senco Share (%)</label>
+            <input id="agent_split" type="number" value="40" step="1" min="0" max="100" oninput="update()"/>
+            <span class="fhint">0% = Senco keeps 100% of its pool</span>
+            <span class="ferr" id="agent_split_err">Must be between 0 and 100</span>
+          </div>
+          <!-- MVP: Referral Override hidden — kept for future reintroduction -->
+          <div class="field" style="display:none" id="referral_override_wrap">
+            <label>Referral Override (%) <span style="font-size:9px;color:var(--n4);font-weight:400">optional</span></label>
+            <input id="referral_override" type="number" value="0" step="0.01" min="0" max="100" oninput="update()"/>
+            <span class="fhint">Overrides agent split when &gt; 0</span>
+          </div>
+        </div>
+        <div class="eco-divider"><span>Calculated</span></div>
+        <div class="eco-step-label">Margin Breakdown</div>
+        <div class="cb cb-eco-neutral"><span class="cb-l">Gross Margin (bps)</span><span class="cb-v" id="e_gross_bps">—</span></div>
+        <div class="cb cb-senco"><span class="cb-l">Senco Pool (bps)</span><span class="cb-v" id="e_senco_pool_bps">—</span></div>
+        <div class="cb cb-agent"><span class="cb-l">Agent Margin (bps)</span><span class="cb-v" id="e_a_bps">—</span></div>
+        <div class="cb cb-senco"><span class="cb-l">Net Senco Margin (bps)</span><span class="cb-v" id="e_s_bps">—</span></div>
+        <div class="eco-step-label" style="margin-top:8px">Dollar Values</div>
+        <div class="cb cb-senco"><span class="cb-l">Senco Monthly Profit</span><span class="cb-v" id="e_s_mo">—</span></div>
+        <div class="cb cb-senco"><span class="cb-l">Senco Annual Profit</span><span class="cb-v" id="e_s_yr">—</span></div>
+        <div class="cb cb-senco"><span class="cb-l">Deal Health</span><span class="cb-v" id="e_s_health">—</span></div>
+        <div class="eco-disclaimer">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Economics are estimated based on blended cost assumptions and may vary by card mix.
+        </div>
+        <!-- ── PROFIT SHARE REBATE PROGRAM ── -->
+        <div class="eco-divider" style="margin-top:10px"><span>Profit Share Rebate</span></div>
+        <div class="tog" id="tog-royalty" onclick="toggleRoyalty(this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Activate Profit Share Rebate</span><div class="sw"></div></div>
+        <div id="royalty-fields" style="display:none">
+          <div class="field">
+            <label>Profit Share Rebate (%)</label>
+            <input id="royalty_rebate_pct" type="number" value="10" step="1" min="0" max="100" oninput="update()"/>
+            <span class="fhint">% of Senco net profit shared with merchant</span>
+          </div>
+          <div class="cb cb-green"><span class="cb-l">Merchant Rebate / Month</span><span class="cb-v" id="e_rebate_mo">—</span></div>
+          <div class="cb cb-green"><span class="cb-l">Annual Rebate</span><span class="cb-v" id="e_rebate_yr">—</span></div>
+          <div class="cb cb-senco"><span class="cb-l">New Senco Net Profit</span><span class="cb-v" id="e_s_mo_after_rebate">—</span></div>
+        </div>
+      </div>
+      <div class="smb internal-only">
+        <div class="sh">
+          <span style="display:flex;align-items:center;gap:6px">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Agent Economics
+          </span>
+          <span class="internal-tag">Internal</span>
+        </div>
+        <div class="cb cb-agent"><span class="cb-l">Monthly Residual</span><span class="cb-v" id="e_a_mo">—</span></div>
+        <div class="cb cb-agent"><span class="cb-l">Annual Residual</span><span class="cb-v" id="e_a_yr">—</span></div>
+        <div class="cb cb-agent"><span class="cb-l">3-Year Residual</span><span class="cb-v" id="e_a_3y">—</span></div>
+        <div class="cb cb-agent"><span class="cb-l">Effective Agent Split</span><span class="cb-v" id="e_a_split">—</span></div>
+      </div>
+    </div>
+    <div id="tab-modules" class="s-body" style="display:none">
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-blue"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>Section Visibility</span></div>
+        <div class="tog on" id="tog-graph" data-mod="graph" onclick="toggleMod('graph',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 21V9M16 21V13M12 21V6"/></svg>Cumulative Savings Graph</span><div class="sw"></div></div>
+        <div class="tog on" id="tog-why" data-mod="why" onclick="toggleMod('why',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Why Senco</span><div class="sw"></div></div>
+        <div class="tog on" id="tog-analysis" data-mod="analysis" onclick="toggleMod('analysis',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Analysis Note</span><div class="sw"></div></div>
+        <div class="tog on" id="tog-rec" data-mod="rec" onclick="toggleMod('rec',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Recommendation</span><div class="sw"></div></div>
+        <div class="tog on" id="tog-disc" data-mod="disc" onclick="toggleMod('disc',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Disclaimer</span><div class="sw"></div></div>
+        <div class="tog" id="tog-addlfees-mod" data-mod="addlfees" onclick="toggleMod('addlfees',this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Include Additional Fees in Report</span><div class="sw"></div></div>
+      </div>
+      <div class="smb">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-purple"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></span>Report Mode</span></div>
+        <div class="mode-grp">
+          <div class="mode-opt active" id="m-est" onclick="setMode('estimated')">Estimated</div>
+          <div class="mode-opt" id="m-ver" onclick="setMode('verified')">Verified Statement</div>
+        </div>
+        <p id="mode-hint" style="font-size:10px;color:var(--n4);line-height:1.55;margin-top:2px">Shows disclaimer: "Savings are estimated based on provided inputs."</p>
+      </div>
+    </div>
+    <div id="tab-content" class="s-body" style="display:none">
+      <div class="smb" id="content-analysis-wrap">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-blue"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>Analysis Note</span><div class="tog on" data-mod="analysis" onclick="toggleMod('analysis',this)" style="padding:5px 10px;margin:0;border:none;background:none;flex-shrink:0"><div class="sw"></div></div></div>
+        <div class="field" id="content-analysis-field"><textarea id="analysis_text" oninput="update()">Savings come from reducing the discount rate while keeping card-brand mandated fees unchanged.</textarea></div>
+      </div>
+      <div class="smb" id="content-rec-wrap">
+        <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-green"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Recommendation</span><div class="tog on" data-mod="rec" onclick="toggleMod('rec',this)" style="padding:5px 10px;margin:0;border:none;background:none;flex-shrink:0"><div class="sw"></div></div></div>
+        <div class="field" id="content-rec-field"><textarea id="rec_text" oninput="update()">Reduce the effective rate to the optimized level while keeping operational workflows unchanged. This delivers immediate savings without system disruption.</textarea></div>
+      </div>
+      <div class="smb">
+        <div class="sh" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-amber"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>Why Senco Bullets</span><button class="btn btn-g btn-sm" onclick="addBullet()">+ Add</button></div>
+        <div id="bullet-list" class="bullet-list"></div>
+      </div>
+    </div>
+    <div class="s-footer">
+      <div class="s-footer-avatar">RM</div>
+      <div class="s-footer-info">
+        <div class="s-footer-name">Raffaele Mazzarella</div>
+        <div class="s-footer-role">raffaele@senco.ai</div>
+      </div>
+    </div>
+  </div>
+  <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" title="Toggle sidebar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div class="preview-pane" id="previewPane">
+    <canvas id="particleCanvas"></canvas>
+    <div class="zoom-bar">
+      <div class="preview-lbl" style="margin-bottom:0">Live Preview · A4</div>
+      <div class="zoom-bar-right">
+        <button class="zoom-btn" onclick="zoomPreview(-0.1)" title="Zoom Out">−</button>
+        <span class="zoom-pct" id="zoomPct">100%</span>
+        <button class="zoom-btn" onclick="zoomPreview(0.1)" title="Zoom In">+</button>
+        <div class="zoom-divider"></div>
+        <button class="zoom-btn zoom-btn-text" onclick="zoomReset()" title="Reset to 100%">100%</button>
+        <button class="zoom-btn zoom-btn-text" onclick="zoomFit()" title="Fit to Screen">Fit</button>
+      </div>
+    </div>
+    <div class="rpt-outer" id="rptOuter">
+      <div id="report-root">
+        <div class="rpt-wrap">
+          <div class="page" id="reportPage"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+/* ── Export dropdown ── */
+function toggleExportDD(e){e.stopPropagation();document.getElementById('exportWrap').classList.toggle('open')}
+function closeExportDD(){document.getElementById('exportWrap').classList.remove('open')}
+document.addEventListener('click',function(e){var w=document.getElementById('exportWrap');if(w&&!w.contains(e.target))closeExportDD()});
+
+const S={
+  mods:{graph:true,why:true,analysis:true,rec:true,disc:true,addlfees:false},
+  afSubs:{cb:true,gw:true},
+  customFees:[],
+  royaltyRebate:false,
+  mode:'estimated',
+  bullets:[
+    {icon:'🤖',title:'AI-Powered Payment Intelligence',desc:'ML models analyze every transaction in real time.',on:true},
+    {icon:'📊',title:'Real-Time Transaction Analytics',desc:'Full visibility into interchange, fees, and processing costs.',on:true},
+    {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Proactive dispute management and fraud scoring built in.',on:true},
+    {icon:'⚡',title:'Faster Merchant Onboarding',desc:'Streamlined KYC and underwriting reduces time-to-live.',on:true},
+    {icon:'💎',title:'Transparent Pricing & Optimization',desc:'No hidden fees — optimization delivered month over month.',on:true},
+  ]
+};
+const f={
+  cur:(n,d=2)=>n.toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:d,maximumFractionDigits:d}),
+  short:(n)=>{if(n>=1000000)return'$'+(n/1000000).toFixed(2)+'M';if(n>=1000)return'$'+(n/1000).toFixed(1)+'K';return f.cur(n,0)},
+  pct:(n,d=2)=>(n*100).toFixed(d)+'%',
+  int:n=>Math.round(n).toLocaleString('en-US'),
+  date:s=>{const[y,m,d]=s.split('-').map(Number);return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-US',{timeZone:'UTC',year:'numeric',month:'long',day:'numeric'})},
+  esc:s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+};
+function getPricingModel(){return document.getElementById('pricing_model').value;}
+function onPricingModelChange(){
+  var m=getPricingModel();
+  document.getElementById('pm-blended').style.display=m==='blended'?'':'none';
+  document.getElementById('pm-interchange').style.display=m==='interchange'?'':'none';
+  document.getElementById('pm-flat').style.display=m==='flat'?'':'none';
+}
+function getEffectiveRates(){
+  var m=getPricingModel();
+  if(m==='interchange'){
+    var ic=parseFloat(document.getElementById('ic_estimate').value)||0;
+    var as=parseFloat(document.getElementById('ic_assessments').value)||0;
+    var pm=parseFloat(document.getElementById('ic_proc_markup').value)||0;
+    var om=parseFloat(document.getElementById('ic_opt_markup').value)||0;
+    var curEff=(ic+as+pm)/100;
+    var optEff=(ic+as+om)/100;
+    // Effective rate badges now in Computed Results section
+    return{current_rate:curEff,optimized_rate:optEff};
+  }
+  if(m==='flat'){
+    return{current_rate:(parseFloat(document.getElementById('flat_rate').value)||0)/100,optimized_rate:(parseFloat(document.getElementById('flat_rate_optimized').value)||0)/100};
+  }
+  // blended (default)
+  return{current_rate:parseFloat(document.getElementById('current_rate').value)/100,optimized_rate:parseFloat(document.getElementById('optimized_rate').value)/100};
+}
+function ri(){
+  const agentRaw=parseFloat(document.getElementById('agent_split').value);
+  const rates=getEffectiveRates();
+  return{
+    merchant_name:document.getElementById('merchant_name').value.trim()||'Merchant',
+    industry:document.getElementById('industry').value.trim()||'Industry',
+    report_date:document.getElementById('report_date').value||'2026-01-01',
+    reference_id:(document.getElementById('reference_id')||{value:''}).value.trim()||'SEN-0000',
+    monthly_volume:parseFloat(document.getElementById('monthly_volume').value)||0,
+    transactions:parseInt(document.getElementById('transactions').value)||0,
+    current_rate:rates.current_rate,
+    optimized_rate:rates.optimized_rate,
+    avs_per_txn:parseFloat(document.getElementById('avs_per_txn').value)||0.10,
+    optimized_avs_per_txn:parseFloat(document.getElementById('optimized_avs_per_txn').value)||0.10,
+    ic_interchange:parseFloat(document.getElementById('ic_interchange').value)/100,
+    ic_processor:parseFloat(document.getElementById('ic_processor').value)/100,
+    senco_share_pct:parseFloat(document.getElementById('senco_share').value)||0,
+    agent_split_pct:isNaN(agentRaw)?0:Math.min(100,Math.max(0,agentRaw)),
+    referral_override:0, /* MVP: disabled — was parseFloat(document.getElementById('referral_override').value)||0 */
+    cb_fee_current:parseFloat(document.getElementById('cb_fee_current').value)||0,
+    cb_fee_optimized:parseFloat(document.getElementById('cb_fee_optimized').value)||0,
+    monthly_chargebacks:parseInt(document.getElementById('monthly_chargebacks').value)||0,
+    gw_fee_current:parseFloat(document.getElementById('gw_fee_current').value)||0,
+    gw_fee_optimized:parseFloat(document.getElementById('gw_fee_optimized').value)||0,
+  };
+}
+function riFromInputs(inp){
+  var agentRaw=parseFloat(inp.agent_split);
+  var pm=inp.pricing_model||'blended';
+  var cr,or;
+  if(pm==='interchange'){
+    var ic=(parseFloat(inp.ic_estimate)||0),as=(parseFloat(inp.ic_assessments)||0),pmk=(parseFloat(inp.ic_proc_markup)||0),omk=(parseFloat(inp.ic_opt_markup)||0);
+    cr=(ic+as+pmk)/100;or=(ic+as+omk)/100;
+  }else if(pm==='flat'){
+    cr=(parseFloat(inp.flat_rate)||0)/100;or=(parseFloat(inp.flat_rate_optimized)||0)/100;
+  }else{
+    cr=(parseFloat(inp.current_rate)||0)/100;or=(parseFloat(inp.optimized_rate)||0)/100;
+  }
+  return{
+    merchant_name:(inp.merchant_name||'').trim()||'Merchant',
+    industry:(inp.industry||'').trim()||'Industry',
+    report_date:inp.report_date||'2026-01-01',
+    reference_id:(inp.reference_id||'').trim()||'SEN-0000',
+    monthly_volume:parseFloat(inp.monthly_volume)||0,
+    transactions:parseInt(inp.transactions)||0,
+    current_rate:cr,
+    optimized_rate:or,
+    avs_per_txn:parseFloat(inp.avs_per_txn)||0.10,
+    optimized_avs_per_txn:parseFloat(inp.optimized_avs_per_txn)||0.10,
+    ic_interchange:(parseFloat(inp.ic_interchange)||0)/100,
+    ic_processor:(parseFloat(inp.ic_processor)||0)/100,
+    senco_share_pct:parseFloat(inp.senco_share)||0,
+    agent_split_pct:isNaN(agentRaw)?0:Math.min(100,Math.max(0,agentRaw)),
+    referral_override:0, /* MVP: disabled — was parseFloat(inp.referral_override)||0 */
+    cb_fee_current:parseFloat(inp.cb_fee_current)||0,
+    cb_fee_optimized:parseFloat(inp.cb_fee_optimized)||0,
+    monthly_chargebacks:parseInt(inp.monthly_chargebacks)||0,
+    gw_fee_current:parseFloat(inp.gw_fee_current)||0,
+    gw_fee_optimized:parseFloat(inp.gw_fee_optimized)||0,
+  };
+}
+function compute(d){
+  const cmf=d.monthly_volume*d.current_rate,omf=d.monthly_volume*d.optimized_rate,rate_ms=cmf-omf,rr=d.current_rate-d.optimized_rate,bps=Math.round(rr*10000);
+  const avs_current_cost=Math.round(d.transactions*d.avs_per_txn*100)/100,avs_optimized_cost=Math.round(d.transactions*d.optimized_avs_per_txn*100)/100,avs_savings_mo=Math.max(0,Math.round((avs_current_cost-avs_optimized_cost)*100)/100);
+  const ms=rate_ms+avs_savings_mo,as=ms*12,tys=ms*36,imp=cmf>0?rate_ms/cmf:0;
+  const total_hard_cost=d.ic_interchange+d.ic_processor,gross_margin_rate=d.optimized_rate-total_hard_cost,gross_margin_bps=Math.round(gross_margin_rate*10000),senco_pool_bps=Math.round(gross_margin_bps*(d.senco_share_pct/100));
+  /* MVP: simplified — referral override disabled. Was: d.referral_override>0?Math.min(100,Math.max(0,d.referral_override)):d.agent_split_pct */
+  const effective_agent_split=d.agent_split_pct;
+  const agent_margin_bps=effective_agent_split===0?0:Math.round(senco_pool_bps*(effective_agent_split/100)),agent_margin_rate=agent_margin_bps/10000,net_senco_bps=senco_pool_bps-agent_margin_bps,net_senco_rate=net_senco_bps/10000;
+  const senco_mo=d.monthly_volume*net_senco_rate,senco_yr=senco_mo*12,agent_mo=d.monthly_volume*agent_margin_rate,agent_yr=agent_mo*12,agent_3y=agent_mo*36;
+  const health=net_senco_bps>=5?'green':net_senco_bps>=1?'yellow':'red',healthLabel=net_senco_bps>=5?'✅ Healthy':net_senco_bps>=1?'⚠️ Tight':'🔴 At Risk';
+  const cb_savings_mo=Math.max(0,d.monthly_chargebacks*(d.cb_fee_current-d.cb_fee_optimized));
+  const gw_impact_mo=d.gw_fee_current-d.gw_fee_optimized;
+  const addl_net_mo=cb_savings_mo+gw_impact_mo;
+  return{...d,cmf,omf,rate_ms,avs_current_cost,avs_optimized_cost,avs_savings_mo,ms,as,tys,rr,bps,imp,pct_saved:imp*100,total_hard_cost,gross_margin_bps,senco_pool_bps,agent_margin_bps,net_senco_bps,senco_mo,senco_yr,agent_mo,agent_yr,agent_3y,effective_agent_split,health,healthLabel,cb_savings_mo,gw_impact_mo,addl_net_mo,pts:[{l:'Mo 1',v:ms},{l:'Mo 6',v:ms*6},{l:'Year 1',v:ms*12},{l:'Year 2',v:ms*24},{l:'Year 3',v:ms*36}]};
+}
+function switchTab(name,el){document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['data','modules','content'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'flex':'none');}
+function toggleMod(k,el){S.mods[k]=!S.mods[k];/* sync ALL toggle instances for this mod key */document.querySelectorAll('[data-mod="'+k+'"]').forEach(function(t){t.classList.toggle('on',S.mods[k]);});/* show/hide content tab fields */var cf=document.getElementById('content-'+k+'-field');if(cf)cf.style.display=S.mods[k]?'':'none';update();}
+function toggleAfSub(key){S.afSubs[key]=!S.afSubs[key];var on=S.afSubs[key];var btn=document.getElementById('af-'+key+'-btn');if(btn){btn.textContent=on?'ON':'OFF';btn.classList.toggle('on',on);btn.classList.toggle('off',!on);}var fields=document.getElementById('af-'+key+'-fields');if(fields)fields.style.display=on?'':'none';update();}
+var _cfId=0;
+function addCustomFee(data){
+  var id=_cfId++;
+  var fee=data||{name:'Custom Fee',current:0,optimized:0,on:true};
+  S.customFees.push({id:id,name:fee.name,current:fee.current,optimized:fee.optimized,on:fee.on!==false});
+  renderCustomFees();
+  update();
+}
+function removeCustomFee(id){
+  S.customFees=S.customFees.filter(function(f){return f.id!==id;});
+  renderCustomFees();
+  update();
+}
+function toggleCustomFee(id){
+  var cf=S.customFees.find(function(f){return f.id===id;});
+  if(cf){cf.on=!cf.on;renderCustomFees();update();}
+}
+function updateCustomFee(id,key,val){
+  var cf=S.customFees.find(function(f){return f.id===id;});
+  if(cf){
+    if(key==='name')cf.name=val;
+    else cf[key]=parseFloat(val)||0;
+    update();
+  }
+}
+function renderCustomFees(){
+  var c=document.getElementById('custom-fees-container');
+  c.innerHTML=S.customFees.map(function(cf){
+    var on=cf.on;
+    var savings=on?cf.current-cf.optimized:0;
+    return '<div class="af-sub" data-cfid="'+cf.id+'">'
+      +'<div class="af-sub-head" onclick="toggleCustomFee('+cf.id+')" style="position:relative">'
+      +'<span class="af-sub-label">'+f.esc(cf.name)+'</span>'
+      +'<span style="display:flex;align-items:center;gap:6px">'
+      +'<span class="af-sub-btn '+(on?'on':'off')+'">'+(on?'ON':'OFF')+'</span>'
+      +'<button class="cf-del" onclick="event.stopPropagation();removeCustomFee('+cf.id+')" style="position:static"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+      +'</span></div>'
+      +'<div class="cf-fields" style="display:'+(on?'':'none')+'">'
+      +'<div class="field"><label>Fee Name</label><input class="cf-name-input" type="text" value="'+f.esc(cf.name)+'" oninput="updateCustomFee('+cf.id+',\'name\',this.value);this.closest(\'.af-sub\').querySelector(\'.af-sub-label\').textContent=this.value"/></div>'
+      +'<div class="field"><label>Current Fee ($/mo)</label><input type="number" value="'+(cf.current||'')+'" step="1" min="0" oninput="updateCustomFee('+cf.id+',\'current\',this.value)"/></div>'
+      +'<div class="field"><label>Optimized Fee ($/mo)</label><input type="number" value="'+(cf.optimized||'')+'" step="1" min="0" oninput="updateCustomFee('+cf.id+',\'optimized\',this.value)"/></div>'
+      +'<div class="cb" style="margin-top:4px"><span class="cb-l">'+f.esc(cf.name)+' Savings/mo</span><span class="cb-v">'+(on?f.cur(Math.max(0,savings)):'—')+'</span></div>'
+      +'</div></div>';
+  }).join('');
+}
+function getCustomFeesTotal(){
+  var total=0;
+  S.customFees.forEach(function(cf){if(cf.on)total+=(cf.current-cf.optimized);});
+  return total;
+}
+function toggleRoyalty(el){S.royaltyRebate=!S.royaltyRebate;el.classList.toggle('on',S.royaltyRebate);document.getElementById('royalty-fields').style.display=S.royaltyRebate?'':'none';update();}
+function setMode(m){S.mode=m;document.getElementById('m-est').classList.toggle('active',m==='estimated');document.getElementById('m-ver').classList.toggle('active',m==='verified');document.getElementById('mode-hint').textContent=m==='estimated'?'Shows disclaimer: "Savings are estimated based on provided inputs."':'Shows disclaimer: "Savings are based on verified statement analysis."';update();}
+function renderBulletEditor(){document.getElementById('bullet-list').innerHTML=S.bullets.map((b,i)=>{var on=b.on!==false;return`<div class="bi${on?'':' bi-off'}"><div class="bi-top"><div class="bi-icon">${b.icon}</div><div class="bi-fields"><input value="${f.esc(b.title)}" placeholder="Title" oninput="updBullet(${i},'title',this.value)"/><input value="${f.esc(b.desc)}" placeholder="Description" oninput="updBullet(${i},'desc',this.value)" style="font-size:10.5px;color:#94a3b8"/></div><div class="bi-tog${on?' on':''}" onclick="toggleBullet(${i})"><div class="sw"></div></div><button class="bi-del" onclick="delBullet(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;}).join('');}
+function updBullet(i,k,v){S.bullets[i][k]=v;update();}
+function toggleBullet(i){S.bullets[i].on=S.bullets[i].on===false?true:false;renderBulletEditor();update();}
+function delBullet(i){S.bullets.splice(i,1);renderBulletEditor();update();}
+function addBullet(){S.bullets.push({icon:'✨',title:'New Benefit',desc:'Describe this benefit.',on:true});renderBulletEditor();update();}
+function mChart(c){if(!S.mods.graph)return'';const mx=Math.max(...c.pts.map(p=>p.v),1);const bars=c.pts.map(p=>{const h=Math.max(3,Math.round((p.v/mx)*80));return`<div class="cbar-w"><div class="cbar-val">${f.short(p.v)}</div><div class="cbar" style="height:${h}px"></div></div>`;}).join('');const ax=c.pts.map(p=>`<div class="caxis-l">${p.l}</div>`).join('');return`<div class="mod"><div class="mod-title">Cumulative Savings Over Time</div><div class="chart-wrap"><div class="chart-bars">${bars}</div><div class="chart-axis">${ax}</div></div></div>`;}
+function mRebate(c){if(!S.royaltyRebate||c.rebate_mo<=0)return'';return`<div class="mod"><div class="mod-title">Profit Share Rebate Program</div><div style="font-size:7.5px;color:#6b7280;font-weight:500;line-height:1.4;margin-top:-3px;margin-bottom:4px;font-style:italic">(Rebates accrue monthly and are distributed quarterly, within 30 days after the end of each quarter.)</div><div class="rsrow"><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">Merchant Rebate / Month</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.rebate_mo)}</div><div class="rsblk-s">shared from Senco net profit</div></div><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">Annual Rebate</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.rebate_yr)}</div><div class="rsblk-s">projected year 1</div></div></div></div>`;}
+function mWhy(){if(!S.mods.why)return'';const items=S.bullets.filter(b=>b.on!==false).map(b=>`<div class="why-item"><div class="why-ico">${b.icon}</div><div class="why-body"><strong>${f.esc(b.title)}</strong><span>${f.esc(b.desc)}</span></div></div>`).join('');if(!items)return'';return`<div class="mod"><div class="mod-title">Why Senco?</div><div class="why-grid">${items}</div></div>`;}
+function mAnalysis(c){if(!S.mods.analysis)return'';const txt=(document.getElementById('analysis_text')||{value:''}).value||'';return`<div class="anote"><div class="anote-t">Analysis Note</div><p class="anote-b">${f.esc(txt)} (Current rate: ${f.pct(c.current_rate)} → Optimized: ${f.pct(c.optimized_rate)}.)</p></div>`;}
+function mRec(){if(!S.mods.rec)return'';const txt=(document.getElementById('rec_text')||{value:''}).value||'';return`<div class="anote anote-rec"><div class="anote-t">Recommendation</div><p class="anote-b">${f.esc(txt)}</p></div>`;}
+function mDisc(){if(!S.mods.disc)return'';const est=S.mode==='estimated';return`<div class="disc${est?'':' disc-ver'}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${est?'<span>Savings are <strong>estimated</strong> based on provided inputs and may vary based on actual processing activity.</span>':'<span>Savings are based on <strong>verified statement analysis</strong> of actual processing data.</span>'}</div>`;}
+function renderReport(c){
+  const mx=Math.max(c.current_rate,c.optimized_rate)||1,B=85,cb=((c.current_rate/mx)*B).toFixed(1),ob=((c.optimized_rate/mx)*B).toFixed(1),pillCls=S.mode==='estimated'?'rm-pill rm-pill-est':'rm-pill rm-pill-ver',pillTxt=S.mode==='estimated'?'Estimated':'Verified';
+  document.getElementById('reportPage').innerHTML=`
+    <div class="rh"><div class="rh-l"><div class="rh-brand">senco</div><div class="rh-title">Payment<em>Intelligence</em>Report</div><div class="rh-bar"></div><div class="rh-sub">Pricing Intelligence Framework</div></div><div class="rh-r"><div class="rh-rlbl">Report Date</div><div class="rh-rdate">${f.date(c.report_date)}</div></div></div>
+    <div class="rm"><div class="rm-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div><div><div class="rm-name">${f.esc(c.merchant_name)}</div><div class="rm-ind">${f.esc(c.industry)}</div></div><div class="${pillCls}">${pillTxt}</div></div>
+    <div class="kpi">
+      <div class="kc"><div class="kc-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Monthly Volume</div><div class="kc-val">${f.cur(c.monthly_volume)}</div></div>
+      <div class="kc"><div class="kc-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Transactions</div><div class="kc-val">${f.int(c.transactions)}</div></div>
+      <div class="kc"><div class="kc-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Current Rate</div><div class="kc-val">${f.pct(c.current_rate)}</div></div>
+      <div class="kc kc-a"><div class="kc-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Optimized Rate</div><div class="kc-val kc-val-a">${f.pct(c.optimized_rate)}</div></div>
+    </div>
+    <div class="r2">
+      <div class="rp">
+        <div class="rpt">Pricing Comparison</div>
+        <table class="rtbl"><thead><tr><th>Category</th><th>Current</th><th>Optimized</th><th>Savings</th></tr></thead><tbody><tr><td>${(function(){var pm=getPricingModel();return pm==='flat'?'Flat Rate':pm==='interchange'?'Interchange+ Rate':'Effective Rate'})()}</td><td>${f.pct(c.current_rate)}</td><td class="ta">${f.pct(c.optimized_rate)}</td><td class="td-s">−${f.pct(c.rr)}</td></tr><tr><td>AVS / Transactions<span class="rsub">${f.int(c.transactions)} txns</span></td><td>${f.cur(c.avs_per_txn)}<span class="rsub">${f.cur(c.avs_current_cost)}/mo</span></td><td class="ta">${f.cur(c.optimized_avs_per_txn)}<span class="rsub">${f.cur(c.avs_optimized_cost)}/mo</span></td><td class="${c.avs_savings_mo>0?'td-s':'td-n'}">${c.avs_savings_mo>0?f.cur(c.avs_savings_mo):'—'}</td></tr>${S.mods.addlfees&&c.eff_cb>0?`<tr><td>Chargeback Fees<span class="rsub">${f.int(c.monthly_chargebacks)} chargebacks/mo</span></td><td>${f.cur(c.cb_fee_current)}<span class="rsub">${f.cur(c.monthly_chargebacks*c.cb_fee_current)}/mo</span></td><td class="ta">${f.cur(c.cb_fee_optimized)}<span class="rsub">${f.cur(c.monthly_chargebacks*c.cb_fee_optimized)}/mo</span></td><td class="td-s">${f.cur(c.eff_cb)}</td></tr>`:''}${S.mods.addlfees&&c.eff_gw!==0?`<tr><td>Gateway / Platform Fee<span class="rsub">monthly flat fee</span></td><td>${f.cur(c.gw_fee_current)}<span class="rsub">/mo</span></td><td class="ta">${f.cur(c.gw_fee_optimized)}<span class="rsub">/mo</span></td><td style="font-weight:700;color:${c.eff_gw>0?'var(--teal)':'#ef4444'}">${c.eff_gw>0?f.cur(c.eff_gw):'+'+f.cur(Math.abs(c.eff_gw))}</td></tr>`:''}${S.mods.addlfees?S.customFees.filter(function(cf){return cf.on&&(cf.current-cf.optimized)!==0}).map(function(cf){var sv=cf.current-cf.optimized;return`<tr><td>${f.esc(cf.name)}<span class="rsub">monthly fee</span></td><td>${f.cur(cf.current)}<span class="rsub">/mo</span></td><td class="ta">${f.cur(cf.optimized)}<span class="rsub">/mo</span></td><td style="font-weight:700;color:${sv>0?'var(--teal)':'#ef4444'}">${sv>0?f.cur(sv):'+'+f.cur(Math.abs(sv))}</td></tr>`}).join(''):''}</tbody><tfoot><tr><td colspan="3" class="td-rl">Total Monthly Savings</td><td class="td-rv ta">${f.cur(S.mods.addlfees?c.ms+c.eff_addl:c.ms)}<span class="rsub" style="font-size:8px;font-weight:400;color:var(--g400)">${(function(){var p=[];if(c.rr>0)p.push('rate');if(c.avs_savings_mo>0)p.push('AVS');if(S.mods.addlfees&&c.eff_cb>0)p.push('chargeback');if(S.mods.addlfees&&c.eff_gw!==0)p.push('gateway');S.customFees.forEach(function(cf){if(cf.on&&(cf.current-cf.optimized)!==0)p.push(cf.name.toLowerCase())});return p.length?p.join(' + ')+' savings':'rate savings'})()}</span></td></tr></tfoot></table>
+        <div class="rrate"><div class="rrate-t">Rate Optimization</div><div class="rbar-r"><span class="rbar-l">Current</span><div class="rbar-tr"><div class="rbar-f rbar-fg" style="width:${cb}%"></div></div><span class="rbar-p">${f.pct(c.current_rate)}</span></div><div class="rbar-r"><span class="rbar-l rbar-la">Optimized</span><div class="rbar-tr"><div class="rbar-f rbar-ft" style="width:${ob}%"></div></div><span class="rbar-p ta">${f.pct(c.optimized_rate)}</span></div><div class="rnote2"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="ta">${f.pct(c.rr)} reduction</span><span class="mu">(${c.pct_saved.toFixed(1)}% improvement)</span></div></div>
+      </div>
+      <div class="rp">
+        <div class="rpt">Fee Breakdown &amp; Savings</div>
+        <div class="rfee"><div><div class="rfee-l">Current / Mo</div><div class="rfee-a">${f.cur(c.cmf)}</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg><div><div class="rfee-l rfee-lr">Optimized / Mo</div><div class="rfee-a ta">${f.cur(c.omf)}</div></div></div>
+        <div class="rsb"><div class="rsb-f" style="width:100%"></div><div class="rsb-lbl">${c.pct_saved.toFixed(1)}% saved</div></div>
+        <div class="rshl"><div class="rshl-l">Monthly Savings</div><div class="rshl-v">${f.cur(S.mods.addlfees?c.ms+c.eff_addl:c.ms)}</div><div class="rshl-s">per month</div></div>
+        <div class="rsrow"><div class="rsblk"><div class="rsblk-l">Annual Savings</div><div class="rsblk-v ta">${f.cur(S.mods.addlfees?(c.ms+c.eff_addl)*12:c.as)}</div><div class="rsblk-s">projected year 1</div></div><div class="rsblk"><div class="rsblk-l">3-Year Savings</div><div class="rsblk-v ta">${f.cur(S.mods.addlfees?(c.ms+c.eff_addl)*36:c.tys)}</div><div class="rsblk-s">total projected</div></div></div>
+      </div>
+    </div>
+    ${mChart(c)}${mRebate(c)}${mWhy()}${mAnalysis(c)}${mRec()}${mDisc()}
+    <div class="rfoot"><div class="rfoot-brand"><span class="rfoot-logo">senco</span><span class="rfoot-dot">·</span><span class="rfoot-tag">AI-Powered Payment Intelligence</span></div><div class="rfoot-conf">Confidential — Prepared exclusively for the named merchant.</div></div>`;
+}
+/* ── ZOOM SYSTEM ── */
+var _zoom={level:1,fitScale:1,mode:'fit'};
+
+function _getFitScale(){
+  var pane=document.getElementById('previewPane');
+  if(!pane)return 1;
+  var avail=Math.max(100,pane.clientWidth-48);
+  return Math.min(1,avail/794);
+}
+
+function scale(){
+  var pane=document.getElementById('previewPane');
+  var outer=document.getElementById('rptOuter');
+  var root=document.getElementById('report-root');
+  if(!pane||!outer||!root)return;
+  _zoom.fitScale=_getFitScale();
+  if(_zoom.mode==='fit') _zoom.level=_zoom.fitScale;
+  var s=_zoom.level;
+  outer.style.transform='';
+  outer.style.width='794px';
+  void outer.offsetWidth;
+  var naturalH=root.offsetHeight||1300;
+  outer.style.transform='scale('+s+')';
+  outer.style.transformOrigin='top center';
+  var scaledH=Math.round(naturalH*s);
+  outer.style.height=naturalH+'px';
+  outer.style.marginBottom=Math.round(naturalH*s-naturalH)+'px';
+  _updateZoomPct();
+}
+
+function _updateZoomPct(){
+  var el=document.getElementById('zoomPct');
+  if(el) el.textContent=Math.round(_zoom.level*100)+'%';
+}
+
+function zoomPreview(delta){
+  _zoom.mode='manual';
+  _zoom.level=Math.min(3,Math.max(0.25,_zoom.level+delta));
+  scale();
+}
+
+function zoomReset(){
+  _zoom.mode='manual';
+  _zoom.level=1;
+  scale();
+}
+
+function zoomFit(){
+  _zoom.mode='fit';
+  _zoom.level=_getFitScale();
+  scale();
+}
+
+/* Ctrl/Cmd + wheel zoom */
+(function(){
+  var pane=document.getElementById('previewPane');
+  if(!pane)return;
+  pane.addEventListener('wheel',function(e){
+    if(e.ctrlKey||e.metaKey){
+      e.preventDefault();
+      _zoom.mode='manual';
+      var delta=e.deltaY>0?-0.05:0.05;
+      _zoom.level=Math.min(3,Math.max(0.25,_zoom.level+delta));
+      scale();
+    }
+  },{passive:false});
+})();
+
+function exportPDF(){
+  const reportHTML = document.getElementById('reportPage').innerHTML;
+  if(!reportHTML || reportHTML.trim()===''){alert('Nothing to export — load a preset first.');return;}
+
+  const styles = `
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --teal:#1A73E8;--teal-l:#07F3AB;--teal-d:#1A73E8;
+      --g900:#111827;--g700:#374151;--g600:#4b5563;
+      --g500:#6b7280;--g400:#9ca3af;--g300:#d1d5db;
+      --g200:#e5e7eb;--g100:#f3f4f6;--g50:#f9fafb;
+      --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+    }
+    html,body{
+      margin:0;padding:10px 22px;background:#fff;
+      font-family:var(--font);font-size:11px;color:var(--g900);
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
+    @page{size:A4;margin:7mm 10mm}
+    @media print{html,body{padding:0}}
+    .page{width:100%;display:flex;flex-direction:column;gap:4px;}
+    .internal-only{display:none!important}
+    .rh{background:linear-gradient(135deg,#1A73E8 0%,#07F3AB 100%);border-radius:7px;padding:9px 18px 8px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:none}
+    .rh-l{display:flex;flex-direction:column;gap:2px}
+    .rh-brand{font-size:11px;font-weight:800;color:#111827;letter-spacing:-.3px;margin-bottom:1px}
+    .rh-title{font-size:16px;font-weight:700;letter-spacing:-0.3px;line-height:1.15;color:#111827}
+    .rh-title em{font-weight:300;font-style:normal;margin:0 4px;color:rgba(0,0,0,.55)}
+    .rh-bar{width:24px;height:2px;background:rgba(0,0,0,.3);border-radius:2px;margin-top:3px}
+    .rh-sub{font-size:9.5px;color:rgba(0,0,0,.5);margin-top:2px}
+    .rh-r{text-align:right}
+    .rh-rlbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.6px;color:rgba(0,0,0,.5);font-weight:600}
+    .rh-rdate{font-size:12px;font-weight:700;margin-top:2px;color:#111827}
+        .rm{display:flex;align-items:center;gap:6px}
+    .rm-ico{width:26px;height:26px;background:linear-gradient(135deg,rgba(26,115,232,.08),rgba(7,243,171,.08));border:1px solid rgba(26,115,232,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rm-name{font-size:11px;font-weight:700;line-height:1.2;color:#111827}
+    .rm-ind{font-size:9px;color:#374151;margin-top:1px}
+    .rm-pill{margin-left:auto;padding:2px 9px;border-radius:20px;font-size:8.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+    .rm-pill-est{background:rgba(245,158,11,.1);color:#b45309;border:1px solid rgba(245,158,11,.25)}
+    .rm-pill-ver{background:rgba(26,115,232,.1);color:#1A73E8;border:1px solid rgba(26,115,232,.25)}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+    .kc{border:1px solid var(--g200);border-radius:6px;padding:4px 8px;background:linear-gradient(160deg,#fff 60%,rgba(26,115,232,.03))}
+    .kc-a{border-color:rgba(26,115,232,.3);background:linear-gradient(160deg,rgba(26,115,232,.02),rgba(7,243,171,.08))}
+    .kc-lbl{display:flex;align-items:center;gap:4px;font-size:7px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#374151;margin-bottom:3px}
+    .kc-val{font-size:15px;font-weight:700;letter-spacing:-.5px;line-height:1;color:#111827}
+    .kc-val-a{color:#1A73E8}
+    .r2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .rp{display:flex;flex-direction:column;gap:5px}
+    .rpt{font-size:8px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#1f2937;padding-bottom:4px;border-bottom:none}
+    .rpt::after{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,#1A73E8,#07F3AB);border-radius:2px;margin-top:3px}
+    .rtbl{width:100%;border-collapse:collapse;font-size:9.5px}
+    .rtbl thead tr{border-bottom:1.5px solid var(--g200)}
+    .rtbl th{padding:3px 6px 5px;text-align:left;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151}
+    .rtbl th:not(:first-child){text-align:center}
+    .rtbl tbody tr{border-bottom:1px solid var(--g100)}
+    .rtbl td{padding:4px 6px;color:#111827;font-weight:500}
+    .rtbl td:not(:first-child){text-align:center}
+    .rtbl tfoot td{padding:5px 6px;font-size:9px;font-weight:600}
+    .rsub{font-size:8px;color:#4b5563;font-weight:400;display:block;margin-top:1px}
+    .td-s{color:#1A73E8;font-weight:700}
+    .td-n{color:#374151}
+    .td-rl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#374151}
+    .td-rv{font-size:10px;font-weight:700}
+    .rrate{display:flex;flex-direction:column;gap:3px}
+    .rrate-t{font-size:8px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#374151;margin-bottom:1px}
+    .rbar-r{display:flex;align-items:center;gap:6px}
+    .rbar-l{font-size:9px;font-weight:500;color:#374151;width:50px;flex-shrink:0}
+    .rbar-la{color:#1A73E8}
+    .rbar-tr{flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden}
+    .rbar-f{height:100%;border-radius:3px}
+    .rbar-fg{background:var(--g300)}
+    .rbar-ft{background:linear-gradient(90deg,#1A73E8,#07F3AB)}
+    .rbar-p{font-size:9px;font-weight:700;color:#111827;width:32px;text-align:right;flex-shrink:0}
+    .rnote2{display:flex;align-items:center;gap:3px;font-size:9px;margin-top:1px}
+    .rfee{display:flex;align-items:center;justify-content:space-between;padding:4px 9px;border:1px solid var(--g200);border-radius:6px;background:linear-gradient(160deg,#fff 70%,rgba(26,115,232,.03))}
+    .rfee-l{font-size:7.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151;margin-bottom:2px}
+    .rfee-lr{text-align:right}
+    .rfee-a{font-size:13px;font-weight:700;letter-spacing:-.4px;color:#111827}
+    .rsb{position:relative;height:5px;background:var(--g100);border-radius:3px;overflow:visible;margin-top:3px}
+    .rsb-f{height:100%;border-radius:3px;background:linear-gradient(90deg,#1A73E8,#07F3AB)}
+    .rsb-lbl{position:absolute;right:0;top:-16px;font-size:8.5px;font-weight:700;color:#1A73E8}
+    .rshl{background:linear-gradient(135deg,rgba(26,115,232,.06),rgba(7,243,171,.12),rgba(26,115,232,.04));border:1px solid rgba(26,115,232,.2);border-radius:7px;padding:5px 9px;text-align:center}
+    .rshl-l{font-size:7px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#374151;margin-bottom:1px}
+    .rshl-v{font-size:19px;font-weight:800;color:#1A73E8;letter-spacing:-1px;line-height:1}
+    .rshl-s{font-size:7.5px;color:#374151;margin-top:1px}
+    .rsrow{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .rsblk{border:1px solid var(--g200);border-radius:6px;padding:4px 8px;background:linear-gradient(160deg,#fff 70%,rgba(26,115,232,.03))}
+    .rsblk-l{font-size:7.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151;margin-bottom:1px}
+    .rsblk-v{font-size:12px;font-weight:800;letter-spacing:-.3px;line-height:1.1;color:#111827}
+    .rsblk-s{font-size:8px;color:#4b5563;margin-top:1px}
+    .mod{margin-top:0}
+    .mod-title{font-size:8px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#1f2937;margin-bottom:4px;padding-bottom:3px;border-bottom:none}
+    .mod-title::after{content:'';display:block;width:24px;height:2px;background:linear-gradient(90deg,#1A73E8,#07F3AB);border-radius:2px;margin-top:3px}
+    .chart-wrap{padding:2px 0 0}
+    .chart-bars{display:flex;align-items:flex-end;gap:5px;height:36px;padding:0 2px}
+    .cbar-w{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+    .cbar-val{font-size:7.5px;font-weight:700;color:#1A73E8;text-align:center;line-height:1.3}
+    .cbar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#07F3AB,#1A73E8);min-height:3px}
+    .chart-axis{display:flex;gap:5px;padding:0 2px;border-top:1px solid var(--g200);margin-top:1px}
+    .caxis-l{flex:1;text-align:center;font-size:6.5px;font-weight:600;color:#374151;padding-top:2px;letter-spacing:.3px}
+    .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+    .why-item{display:flex;align-items:flex-start;gap:4px;padding:3px 6px;background:#fff;border-radius:5px;border:1px solid var(--g200);border-left:3px solid #1A73E8}
+    .why-ico{width:18px;height:18px;background:linear-gradient(135deg,rgba(26,115,232,.1),rgba(7,243,171,.12));border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px}
+    .why-body strong{font-size:8px;font-weight:700;color:#111827;display:block;line-height:1.3}
+    .why-body span{font-size:7.5px;color:#374151;line-height:1.4;display:block;margin-top:0px}
+    .anote{background:var(--g50);border-radius:6px;padding:4px 8px;border-left:3px solid var(--g300)}
+    .anote-rec{border-left-color:#1A73E8;background:linear-gradient(135deg,rgba(26,115,232,.03),rgba(7,243,171,.05))}
+    .anote-t{font-size:7.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#374151;margin-bottom:3px}
+    .anote-b{font-size:9px;color:#111827;line-height:1.5}
+    .disc{display:flex;align-items:center;gap:4px;padding:4px 7px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.18);border-radius:5px;font-size:7.5px;color:#92400e}
+    .disc-ver{background:rgba(26,115,232,.05);border-color:rgba(26,115,232,.18);color:#1A73E8}
+    .rfoot{display:flex;justify-content:space-between;align-items:center;padding-top:3px;border-top:1px solid var(--g200);margin-top:auto}
+    .rfoot-brand{display:flex;align-items:center;gap:5px}
+    .rfoot-logo{font-size:11px;font-weight:800;letter-spacing:-.3px;color:#1A73E8}
+    .rfoot-dot{color:var(--g300);font-size:10px}
+    .rfoot-tag{font-size:9px;color:#374151}
+    .rfoot-conf{font-size:8.5px;color:#374151;font-style:italic}
+    .ta{color:#1A73E8!important}
+    .mu{color:#374151}
+    *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  `;
+
+  const fullHTML = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Payment Intelligence Report</title>' +
+    '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">' +
+    '<style>' + styles + '</style></head><body><div class="page">' + reportHTML + '</div>' +
+    '<script>document.fonts.ready.then(function(){setTimeout(function(){window.print();},300);});<\/script>' +
+    '</body></html>';
+
+  const blob = new Blob([fullHTML], {type: 'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const tab  = window.open(url, '_blank');
+  if(!tab){ alert('Allow popups for this page, then try Export PDF again.'); }
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+}
+
+
+function update(){
+  const inp=ri();
+  const rateValid=inp.optimized_rate<inp.current_rate&&inp.current_rate>0;
+  var pm=getPricingModel();
+  if(pm==='blended'){document.getElementById('optimized_rate').classList.toggle('err',!rateValid&&inp.optimized_rate>0);}
+  else{document.getElementById('optimized_rate').classList.remove('err');}
+  const agentRaw=parseFloat(document.getElementById('agent_split').value);
+  const agentValid=!isNaN(agentRaw)&&agentRaw>=0&&agentRaw<=100;
+  document.getElementById('agent_split').classList.toggle('err',!agentValid);
+  document.getElementById('agent_split_err').style.display=agentValid?'none':'block';
+  const c=compute(inp);
+  c.eff_cb=S.afSubs.cb?c.cb_savings_mo:0;
+  c.eff_gw=S.afSubs.gw?c.gw_impact_mo:0;
+  c.eff_custom=getCustomFeesTotal();
+  c.eff_addl=c.eff_cb+c.eff_gw+c.eff_custom;
+  var totalMo=S.mods.addlfees?c.ms+c.eff_addl:c.ms;
+  document.getElementById('cr_eff_current').textContent=f.pct(c.current_rate);
+  document.getElementById('cr_eff_optimized').textContent=f.pct(c.optimized_rate);
+  document.getElementById('cr_cost_current').textContent=f.cur(c.cmf);
+  document.getElementById('cr_cost_optimized').textContent=f.cur(c.omf);
+  document.getElementById('c_mo').textContent=f.cur(totalMo);
+  document.getElementById('c_yr').textContent=f.cur(totalMo*12);
+  document.getElementById('c_3y').textContent=f.cur(totalMo*36);
+  document.getElementById('c_bp').textContent=c.bps+' bps';
+  document.getElementById('e_hard_cost_pct').textContent=(c.total_hard_cost*100).toFixed(3)+'%';
+  document.getElementById('e_gross_bps').textContent=c.gross_margin_bps+' bps';
+  document.getElementById('e_senco_pool_bps').textContent=c.senco_pool_bps+' bps';
+  document.getElementById('e_a_bps').textContent=c.agent_margin_bps+' bps';
+  document.getElementById('e_s_bps').textContent=c.net_senco_bps+' bps';
+  document.getElementById('e_s_mo').textContent=f.cur(c.senco_mo);
+  document.getElementById('e_s_yr').textContent=f.cur(c.senco_yr);
+  document.getElementById('e_s_health').innerHTML=`<span class="health-pill health-${c.health}">${c.healthLabel}</span>`;
+  document.getElementById('e_a_mo').textContent=f.cur(c.agent_mo);
+  document.getElementById('e_a_yr').textContent=f.cur(c.agent_yr);
+  document.getElementById('e_a_3y').textContent=f.cur(c.agent_3y);
+  document.getElementById('e_a_split').textContent=c.effective_agent_split.toFixed(0)+'%'+(c.effective_agent_split===0?' — Senco retains full pool':'');
+  /* ── Royalty Rebate ── */
+  var rebatePct=parseFloat(document.getElementById('royalty_rebate_pct').value)||0;
+  c.rebate_mo=S.royaltyRebate?c.senco_mo*(rebatePct/100):0;
+  c.rebate_yr=c.rebate_mo*12;
+  c.senco_mo_after_rebate=c.senco_mo-c.rebate_mo;
+  document.getElementById('e_rebate_mo').textContent=S.royaltyRebate?f.cur(c.rebate_mo):'—';
+  document.getElementById('e_rebate_yr').textContent=S.royaltyRebate?f.cur(c.rebate_yr):'—';
+  document.getElementById('e_s_mo_after_rebate').textContent=S.royaltyRebate?f.cur(c.senco_mo_after_rebate):'—';
+  document.getElementById('af_cb_savings').textContent=S.afSubs.cb?f.cur(c.cb_savings_mo):'—';
+  var gwEl=document.getElementById('af_gw_savings');
+  var gwLbl=document.getElementById('af_gw_label');
+  if(!S.afSubs.gw){gwEl.textContent='—';gwEl.style.color='';gwLbl.textContent='Gateway/Platform Fee/mo';}
+  else if(c.gw_impact_mo<0){gwEl.textContent='+'+f.cur(Math.abs(c.gw_impact_mo));gwEl.style.color='#ef4444';gwLbl.textContent='Gateway/Platform Cost/mo';}
+  else if(c.gw_impact_mo>0){gwEl.textContent='−'+f.cur(c.gw_impact_mo);gwEl.style.color='';gwLbl.textContent='Gateway/Platform Savings/mo';}
+  else{gwEl.textContent=f.cur(0);gwEl.style.color='';gwLbl.textContent='Gateway/Platform Fee/mo';}
+  var afEl=document.getElementById('af_total');
+  afEl.textContent=(c.eff_addl<0?'+':'')+f.cur(Math.abs(c.eff_addl));
+  afEl.style.color=c.eff_addl<0?'#ef4444':'';
+  renderReport(c);
+  setTimeout(scale,10);
+}
+
+// ═══════════════════════════════ AGENT REPORT ═══════════════════════════════
+let _agentData = null;
+
+function showAgentReportModal(){
+  var inp = ri();
+  var c = compute(inp);
+  _agentData = {inp: inp, c: c};
+  var mn = inp.merchant_name || '—';
+  document.getElementById('ar-merchant-name').innerHTML = mn + ' <span>· Agent Earnings Report</span>';
+  document.getElementById('ar-agent-split').textContent =
+    c.effective_agent_split.toFixed(0) + '%';
+  document.getElementById('ar-agent-mo').textContent = f.cur(c.agent_mo);
+  document.getElementById('ar-agent-yr').textContent = f.cur(c.agent_yr);
+  document.getElementById('ar-agent-3y').textContent = f.cur(c.agent_3y);
+  [1,5,10].forEach(function(n){
+    document.getElementById('proj-'+n+'-mo').textContent = f.cur(c.agent_mo * n);
+    document.getElementById('proj-'+n+'-yr').textContent = f.cur(c.agent_yr * n);
+    document.getElementById('proj-'+n+'-3y').textContent = f.cur(c.agent_3y * n);
+  });
+  document.getElementById('agentReportModal').style.display = 'flex';
+}
+
+function closeAgentReportModal(){
+  document.getElementById('agentReportModal').style.display = 'none';
+}
+
+function copyEarningsSummary(){
+  if(!_agentData) return;
+  var inp = _agentData.inp, c = _agentData.c;
+  var mn = inp.merchant_name || '—';
+  var lines = [
+    'SENCO — AGENT EARNINGS SUMMARY',
+    'Merchant: ' + mn,
+    'Date: ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+    '',
+    'YOUR EARNINGS',
+    'Agent Split:       ' + c.effective_agent_split.toFixed(0) + '%',
+    'Monthly Residual:  ' + f.cur(c.agent_mo),
+    'Annual Residual:   ' + f.cur(c.agent_yr),
+    '3-Year Projected:  ' + f.cur(c.agent_3y),
+    '',
+    'PORTFOLIO PROJECTION',
+    '1 Merchant:   Mo ' + f.cur(c.agent_mo)    + ' | Yr ' + f.cur(c.agent_yr)    + ' | 3Yr ' + f.cur(c.agent_3y),
+    '5 Merchants:  Mo ' + f.cur(c.agent_mo*5)  + ' | Yr ' + f.cur(c.agent_yr*5)  + ' | 3Yr ' + f.cur(c.agent_3y*5),
+    '10 Merchants: Mo ' + f.cur(c.agent_mo*10) + ' | Yr ' + f.cur(c.agent_yr*10) + ' | 3Yr ' + f.cur(c.agent_3y*10),
+    '',
+    'Projections based on similar merchants. Actual residuals may vary.'
+  ];
+  navigator.clipboard.writeText(lines.join('\n')).then(function(){
+    var btn = document.getElementById('ar-copy-btn');
+    btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    setTimeout(function(){
+      btn.classList.remove('copied');
+      btn.textContent = 'Copy Earnings Summary';
+    }, 2200);
+  });
+}
+
+function exportAgentPDF(){
+  if(!_agentData) return;
+  const {inp, c} = _agentData;
+  const mn      = inp.merchant_name || '—';
+  const industry= inp.industry || '—';
+  const dateStr = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const split   = c.effective_agent_split.toFixed(0)+'%';
+
+  function cur(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  // Portfolio rows — agent only
+  const p1mo=c.agent_mo,    p1yr=c.agent_yr,    p1_3y=c.agent_3y;
+  const p5mo=c.agent_mo*5,  p5yr=c.agent_yr*5,  p5_3y=c.agent_3y*5;
+  const p10mo=c.agent_mo*10,p10yr=c.agent_yr*10,p10_3y=c.agent_3y*10;
+
+  const doc = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Agent Earnings Report — ${mn}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#1A73E8;--teal-d:#1A73E8;--teal-l:#f0f7ff;
+  --g900:#111827;--g700:#374151;--g500:#374151;
+  --g400:#374151;--g200:#e5e7eb;--g100:#f3f4f6;--g50:#f9fafb;
+  --indigo:#1A73E8;--indigo-d:#1A73E8;--indigo-l:#eef4ff;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{margin:0;padding:28px 34px;background:#fff;font-family:var(--font);font-size:11px;color:var(--g900);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:0}
+@media print{html,body{padding:18px 22px}}
+
+/* HEADER */
+.rh{background:linear-gradient(135deg,#1A73E8 0%,#07F3AB 100%);border-radius:10px;padding:18px 22px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.rh-brand{font-size:11px;font-weight:800;letter-spacing:-.3px;color:#111827}
+.rh-brand span{color:rgba(0,0,0,.55)}
+.rh-title{font-size:21px;font-weight:800;letter-spacing:-.6px;line-height:1;margin-top:3px;color:#111827}
+.rh-title em{font-weight:300;font-style:normal;color:rgba(0,0,0,.55)}
+.rh-sub{font-size:9px;color:rgba(0,0,0,.5);margin-top:4px;font-weight:500}
+.rh-r{text-align:right}
+.rh-rlbl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:rgba(0,0,0,.5);font-weight:700}
+.rh-rdate{font-size:12px;font-weight:700;margin-top:2px;color:#111827}
+
+/* INTERNAL BADGE */
+.ibadge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#92400e;margin-bottom:12px}
+
+/* MERCHANT BAR */
+.mbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--g50);border:1px solid var(--g200);border-radius:9px;margin-bottom:14px}
+.mbar-name{font-size:15px;font-weight:800;letter-spacing:-.4px}
+.mbar-ind{font-size:9px;color:#374151;margin-top:2px}
+.mbar-stats{display:flex;gap:18px}
+.mstat{text-align:right}
+.mstat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:#374151;font-weight:700}
+.mstat-val{font-size:13px;font-weight:800;margin-top:2px;letter-spacing:-.2px}
+
+/* SECTION TITLE */
+.sec{margin-bottom:14px}
+.sec-title{font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:#1f2937;padding-bottom:6px;border-bottom:1px solid var(--g200);margin-bottom:10px}
+
+/* EARNINGS CARDS — 4 across */
+.earn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.earn-card{border-radius:9px;padding:11px 12px;border:1px solid}
+.earn-card-base{background:var(--g50);border-color:var(--g200)}
+.earn-card-indigo{background:var(--indigo-l);border-color:rgba(26,115,232,.22)}
+.earn-card-teal{background:var(--teal-l);border-color:rgba(26,115,232,.25)}
+.earn-lbl{font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151;margin-bottom:5px}
+.earn-val{font-size:22px;font-weight:800;letter-spacing:-.8px;line-height:1.05}
+.earn-val-base{color:var(--g900)}
+.earn-val-indigo{color:var(--indigo-d)}
+.earn-val-teal{color:var(--teal-d)}
+.earn-sub{font-size:9px;color:#4b5563;margin-top:3px}
+
+/* PORTFOLIO TABLE */
+.ptable{width:100%;border-collapse:collapse;font-size:11px}
+.ptable thead tr{border-bottom:1.5px solid var(--g200)}
+.ptable th{padding:5px 10px 7px;text-align:left;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#374151}
+.ptable th:not(:first-child){text-align:right}
+.ptable tbody tr{border-bottom:1px solid var(--g100)}
+.ptable tbody tr:last-child{border-bottom:none}
+.ptable td{padding:9px 10px;color:#111827;font-weight:600}
+.ptable td:not(:first-child){text-align:right;font-weight:700;font-size:12px}
+.ptable .plabel{font-size:11px;font-weight:700;color:var(--g900)}
+.ptable .psub{font-size:9px;color:#4b5563;margin-top:1px;font-weight:400}
+.ptable .row-5 td{background:rgba(26,115,232,.04)}
+.ptable .row-10 td{background:rgba(26,115,232,.08)}
+.td-indigo{color:#1A73E8!important}
+.td-teal{color:#07F3AB!important}
+.td-big{font-size:14px!important}
+
+/* DISCLAIMER */
+.disc{display:flex;gap:8px;padding:8px 10px;background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15);border-radius:7px;margin-top:12px}
+.disc-text{font-size:9px;color:#92400e;line-height:1.6}
+
+/* FOOTER */
+.foot{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--g200);margin-top:12px}
+.foot-brand{font-size:11px;font-weight:800;letter-spacing:-.3px}
+.foot-brand span{color:#1A73E8}
+.foot-right{font-size:8.5px;color:#374151;font-style:italic}
+*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="rh">
+  <div>
+    <div class="rh-brand">sen<span>co</span></div>
+    <div class="rh-title">Agent <em>Earnings</em> Report</div>
+    <div class="rh-sub">Your income opportunity — generated by Senco AI</div>
+  </div>
+  <div class="rh-r">
+    <div class="rh-rlbl">Generated</div>
+    <div class="rh-rdate">${dateStr}</div>
+  </div>
+</div>
+
+<!-- INTERNAL BADGE -->
+<div class="ibadge">
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  Internal Only — Do Not Share With Merchant
+</div>
+
+<!-- MERCHANT BAR -->
+<div class="mbar">
+  <div>
+    <div class="mbar-name">${mn}</div>
+    <div class="mbar-ind">${industry}</div>
+  </div>
+  <div class="mbar-stats">
+    <div class="mstat">
+      <div class="mstat-lbl">Monthly Volume</div>
+      <div class="mstat-val">${cur(inp.monthly_volume)}</div>
+    </div>
+    <div class="mstat">
+      <div class="mstat-lbl">Your Split</div>
+      <div class="mstat-val" style="color:#1A73E8">${split}</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 1: AGENT EARNINGS -->
+<div class="sec">
+  <div class="sec-title">Your Earnings — This Merchant</div>
+  <div class="earn-grid">
+    <div class="earn-card earn-card-base">
+      <div class="earn-lbl">Agent Split</div>
+      <div class="earn-val earn-val-base" style="font-size:28px">${split}</div>
+      <div class="earn-sub">your commission rate</div>
+    </div>
+    <div class="earn-card earn-card-indigo">
+      <div class="earn-lbl">Monthly Residual</div>
+      <div class="earn-val earn-val-indigo">${cur(p1mo)}</div>
+      <div class="earn-sub">every month</div>
+    </div>
+    <div class="earn-card earn-card-indigo">
+      <div class="earn-lbl">Annual Residual</div>
+      <div class="earn-val earn-val-indigo" style="font-size:17px">${cur(p1yr)}</div>
+      <div class="earn-sub">projected year 1</div>
+    </div>
+    <div class="earn-card earn-card-teal">
+      <div class="earn-lbl">3-Year Projected</div>
+      <div class="earn-val earn-val-teal" style="font-size:17px">${cur(p1_3y)}</div>
+      <div class="earn-sub">total residual income</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: PORTFOLIO PROJECTION -->
+<div class="sec">
+  <div class="sec-title">Portfolio Projection — If You Close Similar Merchants</div>
+  <table class="ptable">
+    <thead>
+      <tr>
+        <th>Merchants Closed</th>
+        <th>Monthly Income</th>
+        <th>Annual Income</th>
+        <th>3-Year Income</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="plabel">1 Merchant</div>
+          <div class="psub">This deal</div>
+        </td>
+        <td>${cur(p1mo)}</td>
+        <td>${cur(p1yr)}</td>
+        <td class="td-teal">${cur(p1_3y)}</td>
+      </tr>
+      <tr class="row-5">
+        <td>
+          <div class="plabel" style="color:#1A73E8">5 Similar Merchants</div>
+          <div class="psub">Comparable volume &amp; pricing</div>
+        </td>
+        <td class="td-indigo">${cur(p5mo)}</td>
+        <td class="td-indigo">${cur(p5yr)}</td>
+        <td class="td-indigo">${cur(p5_3y)}</td>
+      </tr>
+      <tr class="row-10">
+        <td>
+          <div class="plabel td-big" style="color:#1A73E8">10 Similar Merchants</div>
+          <div class="psub">Full portfolio scenario</div>
+        </td>
+        <td class="td-indigo td-big">${cur(p10mo)}</td>
+        <td class="td-indigo td-big">${cur(p10yr)}</td>
+        <td class="td-teal td-big">${cur(p10_3y)}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disc">
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div class="disc-text">Projection based on similar merchants with comparable volume, pricing structure, and retention. Portfolio projections assume identical economics per merchant. Actual residuals may vary based on volume fluctuations, contract terms, and merchant attrition.</div>
+</div>
+
+<!-- FOOTER -->
+<div class="foot">
+  <div class="foot-brand">sen<span>co</span> · AI-Powered Payment Intelligence</div>
+  <div class="foot-right">Agent Copy — Internal Use Only</div>
+</div>
+
+<script>window.onload=function(){document.fonts.ready.then(function(){setTimeout(function(){window.print();},800);});}<\/script>
+</body>
+</html>`;
+
+  // Print via hidden iframe — triggers native Save as PDF dialog directly
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;width:0;height:0;border:none;opacity:0;pointer-events:none';
+  document.body.appendChild(iframe);
+  var iDoc = iframe.contentDocument || iframe.contentWindow.document;
+  iDoc.open();
+  iDoc.write(doc);
+  iDoc.close();
+  iframe.contentWindow.focus();
+  setTimeout(function(){
+    iframe.contentWindow.print();
+    setTimeout(function(){ document.body.removeChild(iframe); }, 2000);
+  }, 800);
+}
+
+function sendToAgent(){
+  if(!_agentData) return;
+  const {inp, c} = _agentData;
+  const email = (document.getElementById('ar-agent-email').value || '').trim();
+  if(!email){ document.getElementById('ar-agent-email').focus(); return; }
+  const mn = inp.merchant_name || '—';
+  const split = c.effective_agent_split.toFixed(0)+'%';
+  function cur(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  const subject = encodeURIComponent('Your Agent Earnings Report — '+mn);
+  const body = encodeURIComponent(
+`Hi,
+
+Here is your Agent Earnings Report for ${mn}.
+
+YOUR EARNINGS — THIS MERCHANT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Agent Split:       ${split}
+Monthly Residual:  ${cur(c.agent_mo)}
+Annual Residual:   ${cur(c.agent_yr)}
+3-Year Projected:  ${cur(c.agent_3y)}
+
+PORTFOLIO PROJECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                   Monthly        Annual         3-Year
+1 Merchant:        ${cur(c.agent_mo).padEnd(15)}${cur(c.agent_yr).padEnd(15)}${cur(c.agent_3y)}
+5 Merchants:       ${cur(c.agent_mo*5).padEnd(15)}${cur(c.agent_yr*5).padEnd(15)}${cur(c.agent_3y*5)}
+10 Merchants:      ${cur(c.agent_mo*10).padEnd(15)}${cur(c.agent_yr*10).padEnd(15)}${cur(c.agent_3y*10)}
+
+Projection based on similar merchants with comparable volume, pricing structure, and retention.
+Actual residuals may vary.
+
+Powered by Senco AI`
+  );
+
+  window.location.href = 'mailto:'+email+'?subject='+subject+'&body='+body;
+
+  const btn = document.getElementById('ar-send-btn');
+  btn.classList.add('sent');
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Sent!';
+  setTimeout(function(){
+    btn.classList.remove('sent');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send';
+  }, 3000);
+}
+
+// ═══════════════════════════════ SENCO ECONOMICS REPORT ═══════════════════════════════
+var _sencoData = null;
+
+function showSencoReportModal(){
+  var inp = ri();
+  var c = compute(inp);
+  _sencoData = {inp: inp, c: c};
+  var mn = inp.merchant_name || '—';
+
+  document.getElementById('sr-merchant-name').innerHTML = '<strong>' + f.esc(mn) + '</strong> <span>· Senco Economics</span>';
+  document.getElementById('sr-gross-bps').textContent = c.gross_margin_bps + ' bps';
+  document.getElementById('sr-senco-pool-bps').textContent = c.senco_pool_bps + ' bps';
+  document.getElementById('sr-net-senco-bps').textContent = c.net_senco_bps + ' bps';
+  document.getElementById('sr-senco-mo').textContent = f.cur(c.senco_mo);
+  document.getElementById('sr-senco-yr').textContent = f.cur(c.senco_yr);
+  document.getElementById('sr-senco-3y').textContent = f.cur(c.senco_mo * 36);
+  document.getElementById('sr-health').innerHTML = '<span class="health-pill health-' + c.health + '">' + c.healthLabel + '</span>';
+
+  document.getElementById('sencoReportModal').style.display = 'flex';
+}
+
+function closeSencoReportModal(){
+  document.getElementById('sencoReportModal').style.display = 'none';
+}
+
+function copySencoSummary(){
+  if(!_sencoData) return;
+  var inp = _sencoData.inp, c = _sencoData.c;
+  var mn = inp.merchant_name || '—';
+  var senco_3y = c.senco_mo * 36;
+  var lines = [
+    'SENCO — ECONOMICS SUMMARY (INTERNAL)',
+    'Merchant: ' + mn,
+    'Date: ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+    '',
+    'SENCO MARGINS — THIS MERCHANT',
+    'Gross Margin:      ' + c.gross_margin_bps + ' bps',
+    'Senco Pool:        ' + c.senco_pool_bps + ' bps',
+    'Net Senco Margin:  ' + c.net_senco_bps + ' bps',
+    'Monthly Profit:    ' + f.cur(c.senco_mo),
+    'Annual Profit:     ' + f.cur(c.senco_yr),
+    '3-Year Projected:  ' + f.cur(senco_3y),
+    'Deal Health:       ' + c.healthLabel,
+    '',
+    'Internal use only. Margins estimated based on blended cost assumptions.'
+  ];
+  navigator.clipboard.writeText(lines.join('\n')).then(function(){
+    var btn = document.getElementById('sr-copy-btn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(function(){
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Summary';
+    }, 2200);
+  });
+}
+
+function exportSencoPDF(){
+  if(!_sencoData) return;
+  var inp = _sencoData.inp, c = _sencoData.c;
+  var mn = inp.merchant_name || '—';
+  var industry = inp.industry || '—';
+  var dateStr = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  var senco_3y = c.senco_mo * 36;
+
+  function cur(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  var healthColor = c.health==='green'?'#1A73E8':c.health==='yellow'?'#b45309':'#b91c1c';
+  var healthBg = c.health==='green'?'rgba(26,115,232,.15)':c.health==='yellow'?'rgba(245,158,11,.15)':'rgba(239,68,68,.15)';
+
+  var fullHTML = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>' +
+    '<title>Senco Economics Report — ' + mn + '</title>' +
+    '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">' +
+    '<style>' +
+    '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}' +
+    'html,body{margin:0;padding:0;background:#fff;font-family:"DM Sans",sans-serif;font-size:11px;color:#111827;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+    '@page{size:A4;margin:14mm}' +
+    '.wrap{max-width:680px;margin:32px auto;padding:0 24px}' +
+    '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}' +
+    '</style></head><body><div class="wrap">' +
+
+    /* Header */
+    '<div style="background:linear-gradient(135deg,#1A73E8 0%,#07F3AB 100%);border-radius:10px;padding:18px 22px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">' +
+      '<div>' +
+        '<div style="font-size:18px;font-weight:700;letter-spacing:-0.3px;line-height:1.1;color:#111827">Senco <span style="font-weight:300;color:rgba(0,0,0,.55)">Economics</span> Report</div>' +
+        '<div style="width:28px;height:2px;background:rgba(0,0,0,.3);border-radius:2px;margin-top:5px"></div>' +
+        '<div style="font-size:9px;color:rgba(0,0,0,.5);margin-top:3px">Internal margin analysis</div>' +
+      '</div>' +
+      '<div style="text-align:right">' +
+        '<div style="display:inline-block;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.1);color:#b45309;font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(245,158,11,.2)">Internal Only</div>' +
+        '<div style="font-size:13px;font-weight:700;margin-top:4px;color:#111827">' + dateStr + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    /* Merchant bar */
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">' +
+      '<div style="width:32px;height:32px;background:#f3f4f6;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>' +
+      '</div>' +
+      '<div><div style="font-size:14px;font-weight:700;color:#111827">' + f.esc(mn) + '</div><div style="font-size:9px;color:#374151">' + f.esc(industry) + '</div></div>' +
+    '</div>' +
+
+    /* Margins section */
+    '<div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:16px">' +
+      '<div style="font-size:8.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#374151;margin-bottom:10px">Senco Margins · This Merchant</div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151">Gross Margin</span><span style="font-weight:700;color:#111827">' + c.gross_margin_bps + ' bps</span></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151">Senco Pool</span><span style="font-weight:700;color:#1A73E8">' + c.senco_pool_bps + ' bps</span></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151">Net Senco Margin</span><span style="font-weight:700;color:#1A73E8">' + c.net_senco_bps + ' bps</span></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb">' +
+        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">Monthly Profit</div><div style="font-size:20px;font-weight:800;color:#1A73E8;letter-spacing:-0.5px">' + cur(c.senco_mo) + '</div></div>' +
+        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">Annual Profit</div><div style="font-size:20px;font-weight:800;color:#1A73E8;letter-spacing:-0.5px">' + cur(c.senco_yr) + '</div></div>' +
+        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">3-Year Projected</div><div style="font-size:20px;font-weight:800;color:#07F3AB;letter-spacing:-0.5px">' + cur(senco_3y) + '</div></div>' +
+      '</div>' +
+      '<div style="margin-top:8px;padding-top:6px;border-top:1px solid #f3f4f6;display:flex;align-items:center;gap:6px">' +
+        '<span style="font-size:9px;color:#374151">Deal Health:</span>' +
+        '<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:'+healthBg+';color:'+healthColor+'">' + c.healthLabel + '</span>' +
+      '</div>' +
+    '</div>' +
+
+    /* Footer */
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #e5e7eb;margin-top:8px">' +
+      '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:11px;font-weight:800;letter-spacing:-0.3px;color:#1A73E8">senco</span><span style="color:#d1d5db">·</span><span style="font-size:9px;color:#374151">AI-Powered Payment Intelligence</span></div>' +
+      '<div style="font-size:8.5px;color:#374151;font-style:italic">Senco Economics — Internal Use Only</div>' +
+    '</div>' +
+
+    '</div>' +
+    '<script>document.fonts.ready.then(function(){setTimeout(function(){window.print();},400);});<\/script>' +
+    '</body></html>';
+
+  var blob = new Blob([fullHTML], {type: 'text/html'});
+  var url  = URL.createObjectURL(blob);
+  var tab  = window.open(url, '_blank');
+  if(!tab){ alert('Allow popups for this page, then try again.'); }
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+}
+
+// ═══════════════════════════════ SAVE / LOAD / RESET ═══════════════════════════════
+const INPUT_IDS=['merchant_name','industry','report_date','monthly_volume','transactions','current_rate','optimized_rate','avs_per_txn','optimized_avs_per_txn','ic_interchange','ic_processor','senco_share','agent_split','referral_override','royalty_rebate_pct','cb_fee_current','cb_fee_optimized','monthly_chargebacks','gw_fee_current','gw_fee_optimized','pricing_model','ic_estimate','ic_assessments','ic_proc_markup','ic_opt_markup','flat_rate','flat_rate_optimized'];
+const SAVE_KEY='senco-reports';
+const OLD_SAVE_KEY='senco-saved-report';
+
+function getSavedReports(){
+  try{var raw=localStorage.getItem(SAVE_KEY);return raw?JSON.parse(raw):[];}catch(e){return[];}
+}
+function saveSavedReports(arr){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(arr));}catch(e){alert('Storage error: '+e.message);}
+}
+
+function migrateOldSave(){
+  try{
+    var old=localStorage.getItem(OLD_SAVE_KEY);
+    if(!old)return;
+    var data=JSON.parse(old);
+    data.id=data.timestamp||Date.now();
+    var arr=getSavedReports();
+    arr.unshift(data);
+    saveSavedReports(arr);
+    localStorage.removeItem(OLD_SAVE_KEY);
+  }catch(e){}
+}
+
+function updateSavedBadge(){
+  var n=getSavedReports().length;
+  document.getElementById('svBadge').textContent=n>0?n:'';
+}
+
+function saveReport(){
+  try{
+    var inputs={};
+    INPUT_IDS.forEach(function(id){var el=document.getElementById(id);if(el)inputs[id]=el.value;});
+    var now=Date.now();
+    var data={id:now,version:1,timestamp:now,inputs:inputs,mode:S.mode,mods:Object.assign({},S.mods),afSubs:Object.assign({},S.afSubs),customFees:JSON.parse(JSON.stringify(S.customFees)),royaltyRebate:S.royaltyRebate,bullets:JSON.parse(JSON.stringify(S.bullets))};
+    var arr=getSavedReports();
+    arr.unshift(data);
+    saveSavedReports(arr);
+    updateSavedBadge();
+    // Flash feedback
+    var btn=document.getElementById('btnSave');
+    var orig=btn.innerHTML;
+    btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#07F3AB" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
+    setTimeout(function(){btn.innerHTML=orig;},1500);
+  }catch(e){alert('Could not save: '+e.message);}
+}
+
+function loadSavedReport(id){
+  try{
+    var arr=getSavedReports();
+    var data=arr.find(function(r){return r.id===id;});
+    if(!data){alert('Report not found.');return;}
+    // Restore inputs
+    Object.entries(data.inputs).forEach(function(pair){var el=document.getElementById(pair[0]);if(el)el.value=pair[1];});
+    // Restore pricing model UI
+    onPricingModelChange();
+    // Restore mode
+    if(data.mode)setMode(data.mode);
+    // Restore mods
+    if(data.mods){
+      // First handle all known mod keys (ensure addlfees resets if missing from saved data)
+      Object.keys(S.mods).forEach(function(k){
+        var savedVal=(k in data.mods)?data.mods[k]:(k==='addlfees'?false:true);
+        if(S.mods[k]!==savedVal){var el=document.querySelector('[data-mod="'+k+'"]');if(el)toggleMod(k,el);}
+      });
+    }
+    // Restore afSubs
+    var subs=data.afSubs||{cb:true,gw:true};
+    ['cb','gw'].forEach(function(k){
+      S.afSubs[k]=subs[k]!==false;
+      var btn=document.getElementById('af-'+k+'-btn');
+      if(btn){btn.textContent=S.afSubs[k]?'ON':'OFF';btn.className='af-sub-btn '+(S.afSubs[k]?'on':'off');}
+      var fld=document.getElementById('af-'+k+'-fields');if(fld)fld.style.display=S.afSubs[k]?'':'none';
+    });
+    // Restore custom fees
+    S.customFees=[];_cfId=0;
+    if(data.customFees&&data.customFees.length){data.customFees.forEach(function(cf){addCustomFee({name:cf.name,current:cf.current,optimized:cf.optimized,on:cf.on});});}
+    renderCustomFees();
+    // Restore royalty rebate
+    S.royaltyRebate=!!data.royaltyRebate;
+    var royTog=document.getElementById('tog-royalty');
+    if(royTog)royTog.classList.toggle('on',S.royaltyRebate);
+    var royFields=document.getElementById('royalty-fields');
+    if(royFields)royFields.style.display=S.royaltyRebate?'':'none';
+    // Restore bullets
+    if(data.bullets){S.bullets=data.bullets;renderBulletEditor();}
+    update();
+    closeSavedReportsModal();
+    // Flash feedback on Save btn
+    var btn=document.getElementById('btnSave');
+    var orig=btn.innerHTML;
+    btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#07F3AB" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Loaded!';
+    setTimeout(function(){btn.innerHTML=orig;},1500);
+  }catch(e){alert('Could not load: '+e.message);}
+}
+
+function deleteSavedReport(id){
+  if(!confirm('Delete this saved report?'))return;
+  var arr=getSavedReports().filter(function(r){return r.id!==id;});
+  saveSavedReports(arr);
+  updateSavedBadge();
+  renderSavedReportsBody();
+}
+
+var DEFAULT_BULLETS=[
+  {icon:'🤖',title:'AI-Powered Payment Intelligence',desc:'ML models analyze every transaction in real time.',on:true},
+  {icon:'📊',title:'Real-Time Transaction Analytics',desc:'Full visibility into interchange, fees, and processing costs.',on:true},
+  {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Proactive dispute management and fraud scoring built in.',on:true},
+  {icon:'⚡',title:'Faster Merchant Onboarding',desc:'Streamlined KYC and underwriting reduces time-to-live.',on:true},
+  {icon:'💎',title:'Transparent Pricing & Optimization',desc:'No hidden fees — optimization delivered month over month.',on:true},
+];
+function resetReport(){
+  if(!confirm('Clear all numbers and reset form?'))return;
+  INPUT_IDS.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var rt=document.getElementById('rec_text');if(rt)rt.value='';
+  setMode('estimated');
+  Object.keys(S.mods).forEach(function(k){
+    var def=(k==='addlfees')?false:true;
+    S.mods[k]=def;
+    document.querySelectorAll('[data-mod="'+k+'"]').forEach(function(el){el.classList.toggle('on',def);});
+  });
+  S.afSubs={cb:true,gw:true};
+  ['cb','gw'].forEach(function(k){
+    var btn=document.getElementById('af-'+k+'-btn');if(btn){btn.textContent='ON';btn.className='af-sub-btn on';}
+    var fld=document.getElementById('af-'+k+'-fields');if(fld)fld.style.display='';
+  });
+  S.customFees=[];_cfId=0;renderCustomFees();
+  S.royaltyRebate=false;
+  var royTog=document.getElementById('tog-royalty');if(royTog)royTog.classList.remove('on');
+  var royFields=document.getElementById('royalty-fields');if(royFields)royFields.style.display='none';
+  var royInput=document.getElementById('royalty_rebate_pct');if(royInput)royInput.value='10';
+  S.bullets=DEFAULT_BULLETS.map(function(b){return{icon:b.icon,title:b.title,desc:b.desc,on:b.on};});
+  renderBulletEditor();
+  update();
+}
+
+function formatTs(ms){
+  var d=new Date(ms);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+function renderSavedReportsBody(){
+  var arr=getSavedReports();
+  var body=document.getElementById('svModalBody');
+  if(!arr.length){body.innerHTML='<div class="sv-empty">No saved reports yet.<br>Click <strong>Save</strong> to store the current report.</div>';return;}
+  body.innerHTML=arr.map(function(r){
+    var name=r.inputs.merchant_name||'Untitled Merchant';
+    var ts=formatTs(r.timestamp);
+    // Compute metrics from saved inputs
+    var c=compute(riFromInputs(r.inputs));
+    var healthDot=c.health==='green'?'🟢':c.health==='yellow'?'🟡':'🔴';
+    return '<div class="sv-card">'+
+      '<div class="sv-card-head">'+
+        '<div class="sv-row-info">'+
+          '<div class="sv-row-name">'+f.esc(name)+'</div>'+
+          '<div class="sv-row-meta">'+f.esc(c.industry)+' · '+ts+'</div>'+
+        '</div>'+
+        '<div class="sv-row-actions">'+
+          '<button class="sv-btn-load" onclick="loadSavedReport('+r.id+')">Load</button>'+
+          '<button class="sv-btn-del" onclick="deleteSavedReport('+r.id+')" title="Delete">🗑</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="sv-metrics">'+
+        '<div class="sv-met">'+
+          '<div class="sv-met-label">📊 Merchant</div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Savings</span><span class="sv-met-v sv-v-blue">'+f.cur(c.ms,0)+'/mo</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Rate</span><span class="sv-met-v">'+f.pct(c.current_rate)+'→'+f.pct(c.optimized_rate)+'</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Annual</span><span class="sv-met-v">'+f.cur(c.as,0)+'</span></div>'+
+        '</div>'+
+        '<div class="sv-met">'+
+          '<div class="sv-met-label">💼 Senco</div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Net</span><span class="sv-met-v sv-v-mint">'+c.net_senco_bps+' bps '+healthDot+'</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Margin</span><span class="sv-met-v">'+f.cur(c.senco_mo,0)+'/mo</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Annual</span><span class="sv-met-v">'+f.cur(c.senco_yr,0)+'</span></div>'+
+        '</div>'+
+        '<div class="sv-met">'+
+          '<div class="sv-met-label">🔒 Agent</div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Split</span><span class="sv-met-v">'+c.effective_agent_split+'%</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Earn</span><span class="sv-met-v sv-v-blue">'+f.cur(c.agent_mo,0)+'/mo</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Annual</span><span class="sv-met-v">'+f.cur(c.agent_yr,0)+'</span></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function showSavedReportsModal(){
+  renderSavedReportsBody();
+  document.getElementById('savedReportsModal').style.display='flex';
+}
+
+function closeSavedReportsModal(){
+  document.getElementById('savedReportsModal').style.display='none';
+}
+
+// ═══════════════════════════════ THEME TOGGLE ═══════════════════════════════
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  setTimeout(scale,300);
+}
+function toggleTheme(){
+  document.body.classList.toggle('light-mode');
+  var isLight = document.body.classList.contains('light-mode');
+  try { localStorage.setItem('senco-theme', isLight ? 'light' : 'dark'); } catch(e){}
+}
+(function(){
+  try { if(localStorage.getItem('senco-theme') === 'light'){ document.body.classList.add('light-mode'); } } catch(e){}
+})();
+
+window.addEventListener('load',function(){
+  renderBulletEditor();update();
+  migrateOldSave();
+  updateSavedBadge();
+});
+window.addEventListener('resize',scale);
+
+/* ── FLOATING PARTICLE LINES ── */
+(function(){
+  var canvas=document.getElementById('particleCanvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var pane=document.getElementById('previewPane');
+  var particles=[];
+  var mouse={x:-9999,y:-9999};
+  var PARTICLE_COUNT=77;
+  var CONNECT_DIST=170;
+  var MOUSE_DIST=250;
+  var SPEED=0.4;
+
+  function resize(){
+    canvas.width=pane.clientWidth;
+    canvas.height=pane.clientHeight;
+  }
+
+  function Particle(){
+    this.x=Math.random()*canvas.width;
+    this.y=Math.random()*canvas.height;
+    this.vx=(Math.random()-0.5)*SPEED;
+    this.vy=(Math.random()-0.5)*SPEED;
+    this.r=Math.random()*1.8+1.0;
+  }
+
+  function init(){
+    resize();
+    particles=[];
+    for(var i=0;i<PARTICLE_COUNT;i++) particles.push(new Particle());
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var scrollY=pane.scrollTop;
+    var light=document.body.classList.contains('light-mode');
+    /* theme-aware colors & intensity: light mode needs much higher alpha on light bg */
+    var lineR=light?'5,150,105':'26,115,232';
+    var mouseR=light?'16,120,200':'7,243,171';
+    var dotFill=light?'rgba(5,150,105,0.7)':'rgba(26,115,232,0.42)';
+    var glowFill=light?'rgba(16,120,200,0.8)':'rgba(7,243,171,0.5)';
+    var lineAlpha=light?0.38:0.17;
+    var lineW=light?1.2:0.9;
+    var mouseAlpha=light?0.6:0.38;
+    var mouseW=light?1.5:1.1;
+    for(var i=0;i<particles.length;i++){
+      var a=particles[i];
+      var ay=a.y-scrollY;
+      /* particle to particle lines */
+      for(var j=i+1;j<particles.length;j++){
+        var b=particles[j];
+        var by=b.y-scrollY;
+        var dx=a.x-b.x,dy=ay-by;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<CONNECT_DIST){
+          var alpha=lineAlpha*(1-dist/CONNECT_DIST);
+          ctx.beginPath();
+          ctx.moveTo(a.x,ay);
+          ctx.lineTo(b.x,by);
+          ctx.strokeStyle='rgba('+lineR+','+alpha+')';
+          ctx.lineWidth=lineW;
+          ctx.stroke();
+        }
+      }
+      /* particle to mouse — strong connectivity */
+      var mdx=a.x-mouse.x,mdy=ay-mouse.y;
+      var mDist=Math.sqrt(mdx*mdx+mdy*mdy);
+      if(mDist<MOUSE_DIST){
+        var mAlpha=mouseAlpha*(1-mDist/MOUSE_DIST);
+        ctx.beginPath();
+        ctx.moveTo(a.x,ay);
+        ctx.lineTo(mouse.x,mouse.y);
+        ctx.strokeStyle='rgba('+mouseR+','+mAlpha+')';
+        ctx.lineWidth=mouseW;
+        ctx.stroke();
+      }
+      /* draw dot */
+      ctx.beginPath();
+      ctx.arc(a.x,ay,a.r,0,Math.PI*2);
+      ctx.fillStyle=dotFill;
+      ctx.fill();
+    }
+    /* mouse glow dot */
+    if(mouse.x>0&&mouse.y>0){
+      ctx.beginPath();
+      ctx.arc(mouse.x,mouse.y,3,0,Math.PI*2);
+      ctx.fillStyle=glowFill;
+      ctx.fill();
+    }
+  }
+
+  function update(){
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.x+=p.vx;
+      p.y+=p.vy;
+      /* gently attract toward mouse when nearby */
+      if(mouse.x>0&&mouse.y>0){
+        var scrollY=pane.scrollTop;
+        var dx=mouse.x-p.x,dy=(mouse.y+scrollY)-p.y;
+        var d=Math.sqrt(dx*dx+dy*dy);
+        if(d<MOUSE_DIST&&d>1){
+          p.vx+=dx/d*0.012;
+          p.vy+=dy/d*0.012;
+          var spd=Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+          if(spd>SPEED*2.5){p.vx*=SPEED*2.5/spd;p.vy*=SPEED*2.5/spd;}
+        }
+      }
+      if(p.x<0||p.x>canvas.width)p.vx*=-1;
+      if(p.y<0||p.y>canvas.height*3)p.vy*=-1;
+    }
+  }
+
+  function loop(){
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  pane.addEventListener('mousemove',function(e){
+    var rect=pane.getBoundingClientRect();
+    mouse.x=e.clientX-rect.left;
+    mouse.y=e.clientY-rect.top;
+  });
+  pane.addEventListener('mouseleave',function(){
+    mouse.x=-9999;mouse.y=-9999;
+  });
+
+  window.addEventListener('resize',resize);
+  if(typeof ResizeObserver!=='undefined'){
+    new ResizeObserver(function(){resize();}).observe(pane);
+  }
+  init();
+  loop();
+})();
+</script>
+
+
+<div id="agentReportModal" class="ar-overlay" style="display:none" onclick="if(event.target===this)closeAgentReportModal()">
+  <div class="ar-modal" style="width:560px">
+    <!-- HEAD -->
+    <div class="ar-modal-head">
+      <div class="ar-modal-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7cb8ff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Agent Report
+        <span class="ar-modal-badge">Internal Only</span>
+      </div>
+      <button class="ar-modal-close" onclick="closeAgentReportModal()">×</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="ar-modal-body">
+
+      <!-- Merchant name -->
+      <div class="ar-merchant" id="ar-merchant-name">— <span>no merchant loaded</span></div>
+
+      <!-- Agent Earnings — 4 big numbers -->
+      <div class="ar-block" style="margin-bottom:10px">
+        <div class="ar-block-title">Agent Earnings · This Merchant</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+          <div class="ar-earn-cell">
+            <div class="ar-earn-label">Agent Split</div>
+            <div class="ar-earn-val" id="ar-agent-split">—</div>
+          </div>
+          <div class="ar-earn-cell">
+            <div class="ar-earn-label">Monthly Residual</div>
+            <div class="ar-earn-val ar-val-indigo" id="ar-agent-mo">—</div>
+          </div>
+          <div class="ar-earn-cell" style="border-top:1px solid rgba(255,255,255,.05)">
+            <div class="ar-earn-label">Annual Residual</div>
+            <div class="ar-earn-val ar-val-indigo" id="ar-agent-yr">—</div>
+          </div>
+          <div class="ar-earn-cell" style="border-top:1px solid rgba(255,255,255,.05)">
+            <div class="ar-earn-label">3-Year Projected</div>
+            <div class="ar-earn-val" style="color:#07F3AB;font-size:20px" id="ar-agent-3y">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Projection table -->
+      <div class="ar-block" style="margin-bottom:0">
+        <div class="ar-block-title">Portfolio Projection · Similar Merchants</div>
+        <table class="ar-proj-table">
+          <thead>
+            <tr>
+              <th>Portfolio</th>
+              <th>Monthly</th>
+              <th>Annual</th>
+              <th>3-Year</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="ar-proj-name">1 Merchant <span>this deal</span></td>
+              <td id="proj-1-mo">—</td><td id="proj-1-yr">—</td><td id="proj-1-3y" class="ar-proj-highlight">—</td>
+            </tr>
+            <tr class="ar-proj-row-5">
+              <td class="ar-proj-name">5 Merchants <span>similar profile</span></td>
+              <td id="proj-5-mo">—</td><td id="proj-5-yr">—</td><td id="proj-5-3y" class="ar-proj-highlight">—</td>
+            </tr>
+            <tr class="ar-proj-row-10">
+              <td class="ar-proj-name" style="color:#7cb8ff;font-size:13px">10 Merchants <span>full portfolio</span></td>
+              <td id="proj-10-mo" style="font-size:13px;color:#7cb8ff">—</td>
+              <td id="proj-10-yr" style="font-size:13px;color:#7cb8ff">—</td>
+              <td id="proj-10-3y" class="ar-proj-highlight" style="font-size:13px;color:#07F3AB">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="ar-proj-disclaimer">Projections based on similar merchants with comparable volume, pricing structure, and retention. Actual residuals may vary.</div>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- FOOTER ACTIONS -->
+    <div class="ar-modal-foot" style="flex-direction:column;gap:10px">
+      <div style="display:flex;gap:8px">
+        <button class="ar-btn-pdf" onclick="exportAgentPDF()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Download PDF
+        </button>
+        <button class="ar-btn-copy" id="ar-copy-btn" onclick="copyEarningsSummary()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Earnings Summary
+        </button>
+      </div>
+      <div class="ar-send-row">
+        <div class="ar-send-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(26,115,232,.7)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send to Agent
+        </div>
+        <div class="ar-send-inputs">
+          <input class="ar-email-input" id="ar-agent-email" type="email" placeholder="agent@email.com" autocomplete="off"/>
+          <button class="ar-btn-send" id="ar-send-btn" onclick="sendToAgent()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send
+          </button>
+        </div>
+        <div class="ar-send-hint">Opens your email client with a pre-filled agent earnings summary</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ SENCO ECONOMICS REPORT MODAL ═══════════════════════ -->
+<div id="sencoReportModal" class="sr-overlay" style="display:none" onclick="if(event.target===this)closeSencoReportModal()">
+  <div class="sr-modal">
+    <!-- HEAD -->
+    <div class="sr-modal-head">
+      <div class="sr-modal-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7cb8ff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Senco Economics Report
+        <span class="sr-modal-badge">Internal Only</span>
+      </div>
+      <button class="sr-modal-close" onclick="closeSencoReportModal()">&times;</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="sr-modal-body">
+      <div class="sr-merchant" id="sr-merchant-name"><strong>—</strong> <span>no merchant loaded</span></div>
+
+      <!-- Senco Margins — This Merchant -->
+      <div class="sr-block" style="margin-bottom:10px">
+        <div class="sr-block-title">Senco Margins · This Merchant</div>
+        <div class="sr-row"><span class="sr-label">Gross Margin</span><span class="sr-val" id="sr-gross-bps">—</span></div>
+        <div class="sr-row"><span class="sr-label">Senco Pool</span><span class="sr-val sr-val-amber" id="sr-senco-pool-bps">—</span></div>
+        <div class="sr-row"><span class="sr-label">Net Senco Margin</span><span class="sr-val sr-val-amber" id="sr-net-senco-bps">—</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:6px;border-top:1px solid rgba(255,255,255,.05);padding-top:4px">
+          <div class="sr-earn-cell">
+            <div class="sr-earn-label">Monthly Profit</div>
+            <div class="sr-earn-val sr-val-amber" id="sr-senco-mo" style="font-size:18px">—</div>
+          </div>
+          <div class="sr-earn-cell">
+            <div class="sr-earn-label">Annual Profit</div>
+            <div class="sr-earn-val sr-val-amber" id="sr-senco-yr" style="font-size:18px">—</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,.05)">
+          <div class="sr-earn-cell">
+            <div class="sr-earn-label">3-Year Projected</div>
+            <div class="sr-earn-val sr-val-teal" id="sr-senco-3y" style="font-size:20px">—</div>
+          </div>
+          <div class="sr-earn-cell">
+            <div class="sr-earn-label">Deal Health</div>
+            <div id="sr-health" style="margin-top:4px">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Projection removed for MVP — report focuses on single deal economics -->
+    </div>
+
+    <!-- FOOTER ACTIONS -->
+    <div class="sr-modal-foot">
+      <button class="sr-btn-pdf" onclick="exportSencoPDF()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Download PDF
+      </button>
+      <button class="sr-btn-copy" id="sr-copy-btn" onclick="copySencoSummary()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Summary
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="savedReportsModal" class="sv-overlay" style="display:none" onclick="if(event.target===this)closeSavedReportsModal()">
+  <div class="sv-modal">
+    <div class="sv-modal-head">
+      <div class="sv-modal-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7cb8ff" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Saved Reports
+      </div>
+      <button class="sv-modal-close" onclick="closeSavedReportsModal()">×</button>
+    </div>
+    <div class="sv-modal-body" id="svModalBody"></div>
+    <div class="sv-modal-foot">
+      <button class="btn btn-g" onclick="closeSavedReportsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
