@@ -678,9 +678,9 @@ function checkAuth(){
         <div class="af-sub" style="margin-bottom:7px">
           <div class="af-sub-head" onclick="toggleMod('showavs',document.querySelector('[data-mod=showavs]'))">
             <span class="af-sub-label">Transaction Fees (AVS)</span>
-            <span class="af-sub-btn on" id="af-showavs-btn" data-mod="showavs">ON</span>
+            <span class="af-sub-btn off" id="af-showavs-btn" data-mod="showavs">OFF</span>
           </div>
-          <div id="avs-fields">
+          <div id="avs-fields" style="display:none">
             <div class="field" style="padding:6px 10px 0"><label>Current AVS per Txn ($)</label><input id="avs_per_txn" type="number" value="0.10" step="0.01" oninput="update()"/></div>
             <div class="field" style="padding:0 10px 8px"><label>Optimized AVS per Txn ($)</label><input id="optimized_avs_per_txn" type="number" value="0.10" step="0.01" oninput="update()"/>
               <span class="fhint">Lower = AVS savings in report</span>
@@ -995,7 +995,7 @@ function closeExportDD(){document.getElementById('exportWrap').classList.remove(
 document.addEventListener('click',function(e){var w=document.getElementById('exportWrap');if(w&&!w.contains(e.target))closeExportDD()});
 
 const S={
-  mods:{graph:true,why:true,analysis:true,rec:true,disc:true,addlfees:false,showavs:true},
+  mods:{graph:true,why:true,analysis:true,rec:true,disc:true,addlfees:false,showavs:false},
   afSubs:{cb:true,gw:true},
   customFees:[],
   royaltyRebate:false,
@@ -1011,6 +1011,7 @@ const S={
     {icon:'📈',title:'Real-Time Transaction Analytics',desc:'Full visibility into interchange, fees, and processing costs.',on:true},
     {icon:'🚀',title:'Faster Merchant Onboarding',desc:'Streamlined KYC and underwriting reduces time-to-live.',on:true},
     {icon:'💰',title:'Transparent Pricing & Optimization',desc:'No hidden fees — optimization delivered month over month.',on:true},
+    {icon:'🎧',title:'Customer Support',desc:'White-glove customer support, 24/7/365.',on:true},
   ]
 };
 const f={
@@ -2167,6 +2168,7 @@ var DEFAULT_BULLETS=[
   {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Stop fraud upfront and prevent chargebacks.',on:true},
   {icon:'⚡',title:'Faster Merchant Onboarding',desc:'Streamlined KYC and underwriting reduces time-to-live.',on:true},
   {icon:'💎',title:'Transparent Pricing & Optimization',desc:'No hidden fees — optimization delivered month over month.',on:true},
+  {icon:'🎧',title:'Customer Support',desc:'White-glove customer support, 24/7/365.',on:true},
 ];
 function resetReport(){
   if(!confirm('Clear all numbers and reset form?'))return;
