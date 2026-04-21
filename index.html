@@ -880,18 +880,33 @@ function checkAuth(){
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Processor cost assumptions vary by processor path, sponsor bank, risk profile, vertical, and card type. Use the approved buy rate / Schedule A assumptions for margin validation. Economics are estimated based on blended cost inputs and may vary by actual card mix.
         </div>
-        <!-- ── PROFIT SHARE REBATE PROGRAM ── -->
-        <div class="eco-divider" style="margin-top:10px"><span>Profit Share Rebate</span></div>
-        <div class="tog" id="tog-royalty" onclick="toggleRoyalty(this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Activate Profit Share Rebate</span><div class="sw"></div></div>
+        <!-- ── LOYALTY REBATE PROGRAM ── -->
+        <div class="eco-divider" style="margin-top:10px"><span>Loyalty Rebate Program</span></div>
+        <div class="tog" id="tog-royalty" onclick="toggleRoyalty(this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Activate Loyalty Rebate</span><div class="sw"></div></div>
         <div id="royalty-fields" style="display:none">
           <div class="field">
-            <label>Profit Share Rebate (%)</label>
+            <label>Loyalty Rebate (%)</label>
             <input id="royalty_rebate_pct" type="number" value="10" step="1" min="0" max="100" oninput="update()"/>
-            <span class="fhint">% of Senco net profit shared with merchant</span>
           </div>
-          <div class="cb cb-green"><span class="cb-l">Merchant Rebate / Month</span><span class="cb-v" id="e_rebate_mo">—</span></div>
+          <div class="cb cb-green"><span class="cb-l">Loyalty Rebate Program</span><span class="cb-v" id="e_rebate_mo">—</span></div>
           <div class="cb cb-green"><span class="cb-l">Annual Rebate</span><span class="cb-v" id="e_rebate_yr">—</span></div>
           <div class="cb cb-senco"><span class="cb-l">New Senco Net Profit</span><span class="cb-v" id="e_s_mo_after_rebate">—</span></div>
+        </div>
+ 
+        <!-- ── FRAUDDEFLECT CHARGEBACK PROTECTION ── -->
+        <div class="eco-divider" style="margin-top:10px"><span>FraudDeflect Chargeback Protection</span></div>
+        <div class="tog" id="tog-fd" onclick="toggleFD(this)"><span class="tog-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Activate FraudDeflect Protection</span><div class="sw"></div></div>
+        <div id="fd-fields" style="display:none">
+          <div class="field">
+            <label>Current Chargebacks / month ($)</label>
+            <input id="fd_current" type="number" value="2000" step="100" min="0" oninput="update()"/>
+          </div>
+          <div class="field">
+            <label>With FraudDeflect / month ($)</label>
+            <input id="fd_after" type="number" value="1000" step="100" min="0" oninput="update()"/>
+          </div>
+          <div class="cb cb-green"><span class="cb-l">Chargeback Savings / Month</span><span class="cb-v" id="e_fd_mo">—</span></div>
+          <div class="cb cb-green"><span class="cb-l">Annual Savings</span><span class="cb-v" id="e_fd_yr">—</span></div>
         </div>
       </div>
       <div class="smb internal-only">
@@ -985,9 +1000,11 @@ const S={
   afSubs:{cb:true,gw:true},
   customFees:[],
   royaltyRebate:false,
+  fdActive:false,
   mode:'estimated',
   bullets:[
     {icon:'🤖',title:'AI-Powered Payment Intelligence',desc:'ML models analyze every transaction in real time.',on:true},
+    {icon:'✅',title:'Higher Approval Rates',desc:'Approval rates up to 82–85% on high-risk verticals — keep more of every sale.',on:true},
     {icon:'📊',title:'Identify Hidden Fees & Mispricing',desc:'Most merchants are overpaying without realizing it — we uncover and fix it.',on:true},
     {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Proactive dispute management and fraud scoring built in.',on:true},
     {icon:'⚡',title:'Ongoing Optimization',desc:"Your rates don't stay static — we continuously optimize as your business grows.",on:true},
@@ -1183,6 +1200,7 @@ function getCustomFeesTotal(){
   return total;
 }
 function toggleRoyalty(el){S.royaltyRebate=!S.royaltyRebate;el.classList.toggle('on',S.royaltyRebate);document.getElementById('royalty-fields').style.display=S.royaltyRebate?'':'none';update();}
+function toggleFD(el){S.fdActive=!S.fdActive;el.classList.toggle('on',S.fdActive);document.getElementById('fd-fields').style.display=S.fdActive?'':'none';update();}
 function setMode(m){S.mode=m;document.getElementById('m-est').classList.toggle('active',m==='estimated');document.getElementById('m-ver').classList.toggle('active',m==='verified');document.getElementById('mode-hint').textContent=m==='estimated'?'Shows disclaimer: "Savings are estimated based on provided inputs."':'Shows disclaimer: "Savings are based on verified statement analysis."';update();}
 function renderBulletEditor(){document.getElementById('bullet-list').innerHTML=S.bullets.map((b,i)=>{var on=b.on!==false;return`<div class="bi${on?'':' bi-off'}"><div class="bi-top"><div class="bi-icon">${b.icon}</div><div class="bi-fields"><input value="${f.esc(b.title)}" placeholder="Title" oninput="updBullet(${i},'title',this.value)"/><input value="${f.esc(b.desc)}" placeholder="Description" oninput="updBullet(${i},'desc',this.value)" style="font-size:10.5px;color:#94a3b8"/></div><div class="bi-tog${on?' on':''}" onclick="toggleBullet(${i})"><div class="sw"></div></div><button class="bi-del" onclick="delBullet(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;}).join('');}
 function updBullet(i,k,v){S.bullets[i][k]=v;update();}
@@ -1190,7 +1208,8 @@ function toggleBullet(i){S.bullets[i].on=S.bullets[i].on===false?true:false;rend
 function delBullet(i){S.bullets.splice(i,1);renderBulletEditor();update();}
 function addBullet(){S.bullets.push({icon:'✨',title:'New Benefit',desc:'Describe this benefit.',on:true});renderBulletEditor();update();}
 function mChart(c){if(!S.mods.graph)return'';const mx=Math.max(...c.pts.map(p=>p.v),1);const bars=c.pts.map(p=>{const h=Math.max(3,Math.round((p.v/mx)*80));return`<div class="cbar-w"><div class="cbar-val">${f.short(p.v)}</div><div class="cbar" style="height:${h}px"></div></div>`;}).join('');const ax=c.pts.map(p=>`<div class="caxis-l">${p.l}</div>`).join('');return`<div class="mod"><div class="mod-title">Cumulative Savings Over Time</div><div class="chart-wrap"><div class="chart-bars">${bars}</div><div class="chart-axis">${ax}</div></div></div>`;}
-function mRebate(c){if(!S.royaltyRebate||c.rebate_mo<=0)return'';return`<div class="mod"><div class="mod-title">Profit Share Rebate Program</div><div style="font-size:7.5px;color:#6b7280;font-weight:500;line-height:1.4;margin-top:-3px;margin-bottom:4px;font-style:italic">(Rebates accrue monthly and are distributed quarterly, within 30 days after the end of each quarter.)</div><div class="rsrow"><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">Merchant Rebate / Month</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.rebate_mo)}</div><div class="rsblk-s">shared from Senco net profit</div></div><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">Annual Rebate</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.rebate_yr)}</div><div class="rsblk-s">projected year 1</div></div></div></div>`;}
+function mRebate(c){if(!S.royaltyRebate||c.rebate_mo<=0)return'';return`<div class="mod"><div class="mod-title">Loyalty Rebate Program</div><div style="font-size:7.5px;color:#6b7280;font-weight:500;line-height:1.4;margin-top:-3px;margin-bottom:4px;font-style:italic">(Rebates accrue monthly and are distributed quarterly, within 30 days after the end of each quarter.)</div><div class="rsrow"><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">Loyalty Rebate / Month</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.rebate_mo)}</div></div><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">Annual Rebate</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.rebate_yr)}</div><div class="rsblk-s">projected year 1</div></div></div></div>`;}
+function mFraudDeflect(c){if(!S.fdActive||c.fd_savings_mo<=0)return'';return`<div class="mod"><div class="mod-title">FraudDeflect Chargeback Protection</div><div class="rsrow"><div class="rsblk" style="border-left:3px solid #ef4444"><div class="rsblk-l">Current Chargebacks</div><div class="rsblk-v" style="color:#ef4444">${f.cur(c.fd_current_mo)}/mo</div></div><div class="rsblk" style="border-left:3px solid #10b981"><div class="rsblk-l">With FraudDeflect</div><div class="rsblk-v" style="color:#10b981">${f.cur(c.fd_after_mo)}/mo</div><div class="rsblk-s">Saves ${f.cur(c.fd_savings_mo)}/mo — ${f.cur(c.fd_savings_yr)}/yr</div></div></div></div>`;}
 function mWhy(){if(!S.mods.why)return'';const items=S.bullets.filter(b=>b.on!==false).map(b=>`<div class="why-item"><div class="why-ico">${b.icon}</div><div class="why-body"><strong>${f.esc(b.title)}</strong><span>${f.esc(b.desc)}</span></div></div>`).join('');if(!items)return'';return`<div class="mod"><div class="mod-title">Why Senco?</div><div class="why-grid">${items}</div></div>`;}
 function mAnalysis(c){if(!S.mods.analysis)return'';const txt=(document.getElementById('analysis_text')||{value:''}).value||'';return`<div class="anote"><div class="anote-t">Analysis Note</div><p class="anote-b">${f.esc(txt)} (Current rate: ${f.pct(c.current_rate)} → Optimized: ${f.pct(c.optimized_rate)}.)</p></div>`;}
 function mRec(){if(!S.mods.rec)return'';const txt=(document.getElementById('rec_text')||{value:''}).value||'';return`<div class="anote anote-rec"><div class="anote-t">Recommendation</div><p class="anote-b">${f.esc(txt)}</p></div>`;}
@@ -1198,7 +1217,9 @@ function mDisc(){if(!S.mods.disc)return'';const est=S.mode==='estimated';return`
 function renderReport(c){
   const mx=Math.max(c.current_rate,c.optimized_rate)||1,B=85,cb=((c.current_rate/mx)*B).toFixed(1),ob=((c.optimized_rate/mx)*B).toFixed(1),pillCls=S.mode==='estimated'?'rm-pill rm-pill-est':'rm-pill rm-pill-ver',pillTxt=S.mode==='estimated'?'Estimated':'Verified';
   const _avsDelta=S.mods.showavs?0:c.avs_savings_mo;/* subtract AVS savings from totals when hidden */
-  const _ms=c.ms-_avsDelta,_as=c.as-_avsDelta*12,_tys=c.tys-_avsDelta*36;
+  const _rebate=c.rebate_mo||0;
+  const _fd=c.fd_savings_mo||0;
+  const _ms=c.ms-_avsDelta+_rebate+_fd,_as=(c.as-_avsDelta*12)+(_rebate+_fd)*12,_tys=(c.tys-_avsDelta*36)+(_rebate+_fd)*36;
   document.getElementById('reportPage').innerHTML=`
     <div class="rh"><div class="rh-l"><div class="rh-brand">senco</div><div class="rh-title">Payment<em>Intelligence</em>Report</div><div class="rh-bar"></div><div class="rh-sub">Pricing Intelligence Framework</div></div><div class="rh-r"><div class="rh-rlbl">Report Date</div><div class="rh-rdate">${f.date(c.report_date)}</div></div></div>
     <div class="rm"><div class="rm-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div><div><div class="rm-name">${f.esc(c.merchant_name)}</div><div class="rm-ind">${f.esc(c.industry)}</div></div><div class="${pillCls}">${pillTxt}</div></div>
@@ -1222,7 +1243,7 @@ function renderReport(c){
         <div class="rsrow"><div class="rsblk"><div class="rsblk-l">Annual Savings</div><div class="rsblk-v ta">${f.cur(S.mods.addlfees?(_ms+c.eff_addl)*12:_as)}</div><div class="rsblk-s">projected year 1</div></div><div class="rsblk"><div class="rsblk-l">3-Year Savings</div><div class="rsblk-v ta">${f.cur(S.mods.addlfees?(_ms+c.eff_addl)*36:_tys)}</div><div class="rsblk-s">total projected</div></div></div>
       </div>
     </div>
-    ${mChart(Object.assign({},c,{pts:[{l:'Mo 1',v:_ms},{l:'Mo 6',v:_ms*6},{l:'Year 1',v:_ms*12},{l:'Year 2',v:_ms*24},{l:'Year 3',v:_ms*36}]}))}${mRebate(c)}${mWhy()}${mAnalysis(c)}${mRec()}${mDisc()}
+    ${mChart(Object.assign({},c,{pts:[{l:'Mo 1',v:_ms},{l:'Mo 6',v:_ms*6},{l:'Year 1',v:_ms*12},{l:'Year 2',v:_ms*24},{l:'Year 3',v:_ms*36}]}))}${mRebate(c)}${mFraudDeflect(c)}${mWhy()}${mAnalysis(c)}${mRec()}${mDisc()}
     <div class="rfoot"><div class="rfoot-brand"><span class="rfoot-logo">senco</span><span class="rfoot-dot">·</span><span class="rfoot-tag">AI-Powered Payment Intelligence</span></div><div class="rfoot-conf">Confidential — Prepared exclusively for the named merchant.</div></div>`;
 }
 /* ── ZOOM SYSTEM ── */
@@ -1501,6 +1522,14 @@ function update(){
   document.getElementById('e_rebate_mo').textContent=S.royaltyRebate?f.cur(c.rebate_mo):'—';
   document.getElementById('e_rebate_yr').textContent=S.royaltyRebate?f.cur(c.rebate_yr):'—';
   document.getElementById('e_s_mo_after_rebate').textContent=S.royaltyRebate?f.cur(c.senco_mo_after_rebate):'—';
+  /* ── FraudDeflect ── */
+  var fdCur=parseFloat(document.getElementById('fd_current').value)||0;
+  var fdAft=parseFloat(document.getElementById('fd_after').value)||0;
+  c.fd_current_mo=fdCur;c.fd_after_mo=fdAft;
+  c.fd_savings_mo=S.fdActive?Math.max(0,fdCur-fdAft):0;
+  c.fd_savings_yr=c.fd_savings_mo*12;
+  document.getElementById('e_fd_mo').textContent=S.fdActive?f.cur(c.fd_savings_mo):'—';
+  document.getElementById('e_fd_yr').textContent=S.fdActive?f.cur(c.fd_savings_yr):'—';
   document.getElementById('af_cb_savings').textContent=S.afSubs.cb?f.cur(c.cb_savings_mo):'—';
   var gwEl=document.getElementById('af_gw_savings');
   var gwLbl=document.getElementById('af_gw_label');
