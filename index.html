@@ -100,7 +100,7 @@ body{font-family:var(--font);background:var(--navy);color:var(--g900);display:fl
 .bullet-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
 .bi{background:var(--n2);border:1px solid var(--n3);border-radius:8px;padding:9px 10px}
 .bi-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.bi-icon{width:26px;height:26px;background:rgba(20,184,166,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:default;border:1px solid rgba(20,184,166,.2);flex-shrink:0}
+.bi-drag{display:flex;align-items:center;justify-content:center;width:16px;color:#94a3b8;cursor:grab;user-select:none;flex-shrink:0}.bi-drag:active{cursor:grabbing}.bi-drag:hover{color:#1A73E8}.bi-drag-over{outline:2px dashed #1A73E8;outline-offset:-2px;background:rgba(26,115,232,.06)}.bi[draggable="true"]{cursor:default}.bi-icon{width:26px;height:26px;background:rgba(20,184,166,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:default;border:1px solid rgba(20,184,166,.2);flex-shrink:0}
 .bi-fields{flex:1;display:flex;flex-direction:column;gap:4px}
 .bi-fields input{background:var(--n3);border:1px solid var(--n4);border-radius:5px;color:#f1f5f9;font-family:var(--font);font-size:11px;padding:5px 8px;outline:none;width:100%;transition:border-color .15s}
 .bi-fields input:focus{border-color:var(--teal)}
@@ -667,14 +667,14 @@ function checkAuth(){
     <div id="tab-data" class="s-body">
       <div class="smb">
         <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-blue"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Merchant Info</span></div>
-        <div class="field"><label>Merchant Name</label><input id="merchant_name" value="Hello Batch CBD" oninput="update()"/></div>
-        <div class="field"><label>Industry</label><input id="industry" value="CBD E-commerce" oninput="update()"/></div>
-        <div class="field"><label>Report Date</label><input id="report_date" type="date" value="2026-03-02" oninput="update()"/></div>
+        <div class="field"><label>Merchant Name</label><input id="merchant_name" value="" placeholder="Merchant name" oninput="update()"/></div>
+        <div class="field"><label>Industry</label><input id="industry" value="" placeholder="Industry / vertical" oninput="update()"/></div>
+        <div class="field"><label>Report Date</label><input id="report_date" type="date" value="" oninput="update()"/></div>
       </div>
       <div class="smb">
         <div class="sh"><span style="display:flex;align-items:center;gap:6px"><span class="sh-ico sh-ico-green"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>Processing Data</span></div>
-        <div class="field"><label>Monthly Volume ($)</label><input id="monthly_volume" type="number" value="5579286.05" step="1000" oninput="update()"/></div>
-        <div class="field"><label>Transactions</label><input id="transactions" type="number" value="73599" oninput="update()"/></div>
+        <div class="field"><label>Monthly Volume ($)</label><input id="monthly_volume" type="number" value="" step="1000" min="0" placeholder="0" oninput="update()"/></div>
+        <div class="field"><label>Transactions</label><input id="transactions" type="number" value="" min="0" placeholder="0" oninput="update()"/></div>
         <div class="af-sub" style="margin-bottom:7px">
           <div class="af-sub-head" onclick="toggleMod('showavs',document.querySelector('[data-mod=showavs]'))">
             <span class="af-sub-label">Transaction Fees (AVS)</span>
@@ -702,11 +702,11 @@ function checkAuth(){
         <div id="pm-blended">
           <div class="field">
             <label>Current Rate (%)</label>
-            <input id="current_rate" type="number" value="2.60" step="0.01" min="0" max="10" oninput="update()"/>
+            <input id="current_rate" type="number" value="" step="0.01" min="0" max="10" placeholder="0.00" oninput="update()"/>
           </div>
           <div class="field">
             <label>Optimized Rate (%)</label>
-            <input id="optimized_rate" type="number" value="2.51" step="0.01" min="0" max="10" oninput="update()"/>
+            <input id="optimized_rate" type="number" value="" step="0.01" min="0" max="10" placeholder="0.00" oninput="update()"/>
             <span class="fhint">Must be lower than current rate</span>
             <span class="ferr" id="rate_err">Must be lower than current rate</span>
           </div>
@@ -738,12 +738,12 @@ function checkAuth(){
         <div id="pm-flat" style="display:none">
           <div class="field">
             <label>Flat Rate (%)</label>
-            <input id="flat_rate" type="number" value="2.90" step="0.01" min="0" max="10" oninput="update()"/>
+            <input id="flat_rate" type="number" value="" step="0.01" min="0" max="10" placeholder="0.00" oninput="update()"/>
             <span class="fhint">Single flat rate for all transactions</span>
           </div>
           <div class="field">
             <label>Optimized Rate (%)</label>
-            <input id="flat_rate_optimized" type="number" value="2.60" step="0.01" min="0" max="10" oninput="update()"/>
+            <input id="flat_rate_optimized" type="number" value="" step="0.01" min="0" max="10" placeholder="0.00" oninput="update()"/>
             <span class="fhint">Must be lower than flat rate</span>
           </div>
         </div>
@@ -890,7 +890,6 @@ function checkAuth(){
           </div>
           <div class="cb cb-green"><span class="cb-l">Loyalty Rebate Program</span><span class="cb-v" id="e_rebate_mo">—</span></div>
           <div class="cb cb-green"><span class="cb-l">Annual Rebate</span><span class="cb-v" id="e_rebate_yr">—</span></div>
-          <div class="cb cb-senco"><span class="cb-l">New Senco Net Profit</span><span class="cb-v" id="e_s_mo_after_rebate">—</span></div>
         </div>
 
         <!-- ── FRAUDDEFLECT CHARGEBACK PROTECTION ── -->
@@ -1004,9 +1003,9 @@ const S={
   mode:'estimated',
   bullets:[
     {icon:'🤖',title:'AI-Powered Payment Intelligence',desc:'ML models analyze every transaction in real time.',on:true},
-    {icon:'✅',title:'Higher Approval Rates',desc:'Approval rates up to 82–85% on high-risk verticals — keep more of every sale.',on:true},
+    {icon:'✅',title:'Higher Approval Rates',desc:'Optimize conversion rate and reduce false declines.',on:true},
     {icon:'📊',title:'Identify Hidden Fees & Mispricing',desc:'Most merchants are overpaying without realizing it — we uncover and fix it.',on:true},
-    {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Proactive dispute management and fraud scoring built in.',on:true},
+    {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Stop fraud upfront and prevent chargebacks.',on:true},
     {icon:'⚡',title:'Ongoing Optimization',desc:"Your rates don't stay static — we continuously optimize as your business grows.",on:true},
     {icon:'💎',title:'Stable Processing',desc:'Avoid sudden shutdowns and unreliable processors with structured, compliant setup.',on:true},
     {icon:'📈',title:'Real-Time Transaction Analytics',desc:'Full visibility into interchange, fees, and processing costs.',on:true},
@@ -1045,7 +1044,7 @@ function getEffectiveRates(){
     return{current_rate:(parseFloat(document.getElementById('flat_rate').value)||0)/100,optimized_rate:(parseFloat(document.getElementById('flat_rate_optimized').value)||0)/100};
   }
   // blended (default)
-  return{current_rate:parseFloat(document.getElementById('current_rate').value)/100,optimized_rate:parseFloat(document.getElementById('optimized_rate').value)/100};
+  return{current_rate:(parseFloat(document.getElementById('current_rate').value)||0)/100,optimized_rate:(parseFloat(document.getElementById('optimized_rate').value)||0)/100};
 }
 function ri(){
   const agentRaw=parseFloat(document.getElementById('agent_split').value);
@@ -1061,10 +1060,10 @@ function ri(){
     optimized_rate:rates.optimized_rate,
     avs_per_txn:parseFloat(document.getElementById('avs_per_txn').value)||0.10,
     optimized_avs_per_txn:parseFloat(document.getElementById('optimized_avs_per_txn').value)||0.10,
-    ic_interchange:parseFloat(document.getElementById('ic_interchange').value)/100,
-    ic_assessments_cost:parseFloat(document.getElementById('ic_assessments_cost').value)/100,
-    ic_processor:parseFloat(document.getElementById('ic_processor').value)/100,
-    processor_buy_rate:parseFloat(document.getElementById('processor_buy_rate').value)/100,
+    ic_interchange:(parseFloat(document.getElementById('ic_interchange').value)||0)/100,
+    ic_assessments_cost:(parseFloat(document.getElementById('ic_assessments_cost').value)||0)/100,
+    ic_processor:(parseFloat(document.getElementById('ic_processor').value)||0)/100,
+    processor_buy_rate:(parseFloat(document.getElementById('processor_buy_rate').value)||0)/100,
     senco_share_pct:parseFloat(document.getElementById('senco_share').value)||0,
     agent_split_pct:isNaN(agentRaw)?0:Math.min(100,Math.max(0,agentRaw)),
     referral_override:0, /* MVP: disabled — was parseFloat(document.getElementById('referral_override').value)||0 */
@@ -1144,7 +1143,7 @@ function compute(d){
   const cb_savings_mo=Math.max(0,d.monthly_chargebacks*(d.cb_fee_current-d.cb_fee_optimized));
   const gw_impact_mo=d.gw_fee_current-d.gw_fee_optimized;
   const addl_net_mo=cb_savings_mo+gw_impact_mo;
-  return{...d,cmf,omf,rate_ms,avs_current_cost,avs_optimized_cost,avs_savings_mo,ms,as,tys,rr,bps,imp,pct_saved:imp*100,total_hard_cost,true_cost,deal_valid,gross_margin_bps,senco_pool_bps,agent_margin_bps,net_senco_bps,senco_mo,senco_yr,agent_mo,agent_yr,agent_3y,effective_agent_split,health,healthLabel,cb_savings_mo,gw_impact_mo,addl_net_mo,pts:[{l:'Mo 1',v:ms},{l:'Mo 6',v:ms*6},{l:'Year 1',v:ms*12},{l:'Year 2',v:ms*24},{l:'Year 3',v:ms*36}]};
+  return{...d,cmf,omf,rate_ms,avs_current_cost,avs_optimized_cost,avs_savings_mo,ms,as,tys,rr,bps,imp,pct_saved:imp*100,total_hard_cost,true_cost,deal_valid,gross_margin_bps,senco_pool_bps,agent_margin_bps,net_senco_bps,senco_mo,senco_yr,agent_mo,agent_yr,agent_3y,effective_agent_split,health,healthLabel,cb_savings_mo,gw_impact_mo,addl_net_mo,pts:[{l:'Year 1',v:ms*12},{l:'Year 2',v:ms*24},{l:'Year 3',v:ms*36},{l:'Year 4',v:ms*48},{l:'Year 5',v:ms*60}]};
 }
 function switchTab(name,el){document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['data','modules','content'].forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'flex':'none');}
 function toggleMod(k,el){S.mods[k]=!S.mods[k];/* sync ALL toggle instances for this mod key */document.querySelectorAll('[data-mod="'+k+'"]').forEach(function(t){t.classList.toggle('on',S.mods[k]);});/* show/hide content tab fields */var cf=document.getElementById('content-'+k+'-field');if(cf)cf.style.display=S.mods[k]?'':'none';/* update ON/OFF button if exists */var modBtn=document.getElementById('af-'+k+'-btn');if(modBtn){modBtn.textContent=S.mods[k]?'ON':'OFF';modBtn.className='af-sub-btn '+(S.mods[k]?'on':'off');}/* show/hide AVS fields */if(k==='showavs'){var af=document.getElementById('avs-fields');if(af)af.style.display=S.mods[k]?'':'none';}update();}
@@ -1202,7 +1201,14 @@ function getCustomFeesTotal(){
 function toggleRoyalty(el){S.royaltyRebate=!S.royaltyRebate;el.classList.toggle('on',S.royaltyRebate);document.getElementById('royalty-fields').style.display=S.royaltyRebate?'':'none';update();}
 function toggleFD(el){S.fdActive=!S.fdActive;el.classList.toggle('on',S.fdActive);document.getElementById('fd-fields').style.display=S.fdActive?'':'none';update();}
 function setMode(m){S.mode=m;document.getElementById('m-est').classList.toggle('active',m==='estimated');document.getElementById('m-ver').classList.toggle('active',m==='verified');document.getElementById('mode-hint').textContent=m==='estimated'?'Shows disclaimer: "Savings are estimated based on provided inputs."':'Shows disclaimer: "Savings are based on verified statement analysis."';update();}
-function renderBulletEditor(){document.getElementById('bullet-list').innerHTML=S.bullets.map((b,i)=>{var on=b.on!==false;return`<div class="bi${on?'':' bi-off'}"><div class="bi-top"><div class="bi-icon">${b.icon}</div><div class="bi-fields"><input value="${f.esc(b.title)}" placeholder="Title" oninput="updBullet(${i},'title',this.value)"/><input value="${f.esc(b.desc)}" placeholder="Description" oninput="updBullet(${i},'desc',this.value)" style="font-size:10.5px;color:#94a3b8"/></div><div class="bi-tog${on?' on':''}" onclick="toggleBullet(${i})"><div class="sw"></div></div><button class="bi-del" onclick="delBullet(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;}).join('');}
+function renderBulletEditor(){document.getElementById('bullet-list').innerHTML=S.bullets.map((b,i)=>{var on=b.on!==false;return`<div class="bi${on?'':' bi-off'}" draggable="true" data-bidx="${i}" ondragstart="bulletDragStart(event,${i})" ondragend="bulletDragEnd(event)" ondragover="bulletDragOver(event,${i})" ondragenter="bulletDragEnter(event,${i})" ondragleave="bulletDragLeave(event)" ondrop="bulletDrop(event,${i})"><div class="bi-top"><div class="bi-drag" title="Drag to reorder"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1"/><circle cx="7" cy="3" r="1"/><circle cx="3" cy="7" r="1"/><circle cx="7" cy="7" r="1"/><circle cx="3" cy="11" r="1"/><circle cx="7" cy="11" r="1"/></svg></div><div class="bi-icon">${b.icon}</div><div class="bi-fields"><input value="${f.esc(b.title)}" placeholder="Title" oninput="updBullet(${i},'title',this.value)"/><input value="${f.esc(b.desc)}" placeholder="Description" oninput="updBullet(${i},'desc',this.value)" style="font-size:10.5px;color:#94a3b8"/></div><div class="bi-tog${on?' on':''}" onclick="toggleBullet(${i})"><div class="sw"></div></div><button class="bi-del" onclick="delBullet(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;}).join('');}
+var _bulletDragIdx=-1;
+function bulletDragStart(e,i){if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON'||(e.target.closest&&e.target.closest('button'))){e.preventDefault();return false;}_bulletDragIdx=i;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',String(i));}catch(err){}setTimeout(function(){var el=document.querySelector('.bi[data-bidx="'+i+'"]');if(el)el.style.opacity='0.4';},0);}
+function bulletDragEnd(e){document.querySelectorAll('.bi').forEach(function(el){el.style.opacity='';el.classList.remove('bi-drag-over');});_bulletDragIdx=-1;}
+function bulletDragOver(e,i){e.preventDefault();e.dataTransfer.dropEffect='move';}
+function bulletDragEnter(e,i){e.preventDefault();if(_bulletDragIdx>=0&&_bulletDragIdx!==i){var el=e.currentTarget;if(el&&el.classList)el.classList.add('bi-drag-over');}}
+function bulletDragLeave(e){if(e.currentTarget&&e.currentTarget.classList)e.currentTarget.classList.remove('bi-drag-over');}
+function bulletDrop(e,i){e.preventDefault();e.stopPropagation();if(e.currentTarget&&e.currentTarget.classList)e.currentTarget.classList.remove('bi-drag-over');if(_bulletDragIdx<0||_bulletDragIdx===i){_bulletDragIdx=-1;return;}var moved=S.bullets.splice(_bulletDragIdx,1)[0];S.bullets.splice(i,0,moved);_bulletDragIdx=-1;renderBulletEditor();update();}
 function updBullet(i,k,v){S.bullets[i][k]=v;update();}
 function toggleBullet(i){S.bullets[i].on=S.bullets[i].on===false?true:false;renderBulletEditor();update();}
 function delBullet(i){S.bullets.splice(i,1);renderBulletEditor();update();}
@@ -1232,8 +1238,8 @@ function renderReport(c){
     <div class="r2">
       <div class="rp">
         <div class="rpt">Pricing Comparison</div>
-        <table class="rtbl"><thead><tr><th>Category</th><th>Current</th><th>Optimized</th><th>Savings</th></tr></thead><tbody><tr><td>${(function(){var pm=getPricingModel();return pm==='flat'?'Flat Rate':pm==='interchange'?'Interchange+ Rate':'Effective Rate'})()}</td><td>${f.pct(c.current_rate)}</td><td class="ta">${f.pct(c.optimized_rate)}</td><td class="td-s">−${f.pct(c.rr)}</td></tr>${S.mods.showavs?`<tr><td>AVS / Transactions<span class="rsub">${f.int(c.transactions)} txns</span></td><td>${f.cur(c.avs_per_txn)}<span class="rsub">${f.cur(c.avs_current_cost)}/mo</span></td><td class="ta">${f.cur(c.optimized_avs_per_txn)}<span class="rsub">${f.cur(c.avs_optimized_cost)}/mo</span></td><td class="${c.avs_savings_mo>0?'td-s':'td-n'}">${c.avs_savings_mo>0?f.cur(c.avs_savings_mo):'—'}</td></tr>`:''}${S.mods.addlfees&&c.eff_cb>0?`<tr><td>Chargeback Fees<span class="rsub">${f.int(c.monthly_chargebacks)} chargebacks/mo</span></td><td>${f.cur(c.cb_fee_current)}<span class="rsub">${f.cur(c.monthly_chargebacks*c.cb_fee_current)}/mo</span></td><td class="ta">${f.cur(c.cb_fee_optimized)}<span class="rsub">${f.cur(c.monthly_chargebacks*c.cb_fee_optimized)}/mo</span></td><td class="td-s">${f.cur(c.eff_cb)}</td></tr>`:''}${S.mods.addlfees&&c.eff_gw!==0?`<tr><td>Gateway / Platform Fee<span class="rsub">monthly flat fee</span></td><td>${f.cur(c.gw_fee_current)}<span class="rsub">/mo</span></td><td class="ta">${f.cur(c.gw_fee_optimized)}<span class="rsub">/mo</span></td><td style="font-weight:700;color:${c.eff_gw>0?'var(--teal)':'#ef4444'}">${c.eff_gw>0?f.cur(c.eff_gw):'+'+f.cur(Math.abs(c.eff_gw))}</td></tr>`:''}${S.mods.addlfees?S.customFees.filter(function(cf){return cf.on&&(cf.current-cf.optimized)!==0}).map(function(cf){var sv=cf.current-cf.optimized;return`<tr><td>${f.esc(cf.name)}<span class="rsub">monthly fee</span></td><td>${f.cur(cf.current)}<span class="rsub">/mo</span></td><td class="ta">${f.cur(cf.optimized)}<span class="rsub">/mo</span></td><td style="font-weight:700;color:${sv>0?'var(--teal)':'#ef4444'}">${sv>0?f.cur(sv):'+'+f.cur(Math.abs(sv))}</td></tr>`}).join(''):''}</tbody><tfoot><tr><td colspan="3" class="td-rl">Total Monthly Savings</td><td class="td-rv ta">${f.cur(S.mods.addlfees?_ms+c.eff_addl:_ms)}<span class="rsub" style="font-size:8px;font-weight:400;color:var(--g400)">${(function(){var p=[];if(c.rr>0)p.push('rate');if(S.mods.showavs&&c.avs_savings_mo>0)p.push('AVS');if(S.mods.addlfees&&c.eff_cb>0)p.push('chargeback');if(S.mods.addlfees&&c.eff_gw!==0)p.push('gateway');S.customFees.forEach(function(cf){if(cf.on&&(cf.current-cf.optimized)!==0)p.push(cf.name.toLowerCase())});return p.length?p.join(' + ')+' savings':'rate savings'})()}</span></td></tr></tfoot></table>
-        <div class="rrate"><div class="rrate-t">Rate Optimization</div><div class="rbar-r"><span class="rbar-l">Current</span><div class="rbar-tr"><div class="rbar-f rbar-fg" style="width:${cb}%"></div></div><span class="rbar-p">${f.pct(c.current_rate)}</span></div><div class="rbar-r"><span class="rbar-l rbar-la">Optimized</span><div class="rbar-tr"><div class="rbar-f rbar-ft" style="width:${ob}%"></div></div><span class="rbar-p ta">${f.pct(c.optimized_rate)}</span></div><div class="rnote2"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span class="ta">${f.pct(c.rr)} reduction</span><span class="mu">(${c.pct_saved.toFixed(1)}% improvement)</span></div></div>
+        <table class="rtbl"><thead><tr><th>Category</th><th>Current</th><th>Optimized</th><th>Savings</th></tr></thead><tbody><tr><td>${(function(){var pm=getPricingModel();return pm==='flat'?'Flat Rate':pm==='interchange'?'Interchange+ Rate':'Effective Rate'})()}</td><td>${f.pct(c.current_rate)}</td><td class="ta">${f.pct(c.optimized_rate)}</td><td class="td-s">${f.cur(c.rate_ms)}</td></tr>${S.mods.showavs?`<tr><td>AVS / Transactions<span class="rsub">${f.int(c.transactions)} txns</span></td><td>${f.cur(c.avs_per_txn)}<span class="rsub">${f.cur(c.avs_current_cost)}/mo</span></td><td class="ta">${f.cur(c.optimized_avs_per_txn)}<span class="rsub">${f.cur(c.avs_optimized_cost)}/mo</span></td><td class="${c.avs_savings_mo>0?'td-s':'td-n'}">${c.avs_savings_mo>0?f.cur(c.avs_savings_mo):'—'}</td></tr>`:''}${S.mods.addlfees&&c.eff_cb>0?`<tr><td>Chargeback Fees<span class="rsub">${f.int(c.monthly_chargebacks)} chargebacks/mo</span></td><td>${f.cur(c.cb_fee_current)}<span class="rsub">${f.cur(c.monthly_chargebacks*c.cb_fee_current)}/mo</span></td><td class="ta">${f.cur(c.cb_fee_optimized)}<span class="rsub">${f.cur(c.monthly_chargebacks*c.cb_fee_optimized)}/mo</span></td><td class="td-s">${f.cur(c.eff_cb)}</td></tr>`:''}${S.mods.addlfees&&c.eff_gw!==0?`<tr><td>Gateway / Platform Fee<span class="rsub">monthly flat fee</span></td><td>${f.cur(c.gw_fee_current)}<span class="rsub">/mo</span></td><td class="ta">${f.cur(c.gw_fee_optimized)}<span class="rsub">/mo</span></td><td style="font-weight:700;color:${c.eff_gw>0?'var(--teal)':'#ef4444'}">${c.eff_gw>0?f.cur(c.eff_gw):'+'+f.cur(Math.abs(c.eff_gw))}</td></tr>`:''}${S.mods.addlfees?S.customFees.filter(function(cf){return cf.on&&(cf.current-cf.optimized)!==0}).map(function(cf){var sv=cf.current-cf.optimized;return`<tr><td>${f.esc(cf.name)}<span class="rsub">monthly fee</span></td><td>${f.cur(cf.current)}<span class="rsub">/mo</span></td><td class="ta">${f.cur(cf.optimized)}<span class="rsub">/mo</span></td><td style="font-weight:700;color:${sv>0?'var(--teal)':'#ef4444'}">${sv>0?f.cur(sv):'+'+f.cur(Math.abs(sv))}</td></tr>`}).join(''):''}${S.royaltyRebate&&c.rebate_mo>0?`<tr><td>Monthly Rebate<span class="rsub">(Paid quarterly)</span></td><td>—</td><td class="ta">—</td><td class="td-s">${f.cur(c.rebate_mo)}</td></tr>`:''}</tbody><tfoot><tr><td colspan="3" class="td-rl">Total Monthly Savings</td><td class="td-rv ta">${f.cur(S.mods.addlfees?_ms+c.eff_addl:_ms)}</td></tr></tfoot></table>
+        
       </div>
       <div class="rp">
         <div class="rpt">Fee Breakdown &amp; Savings</div>
@@ -1243,7 +1249,7 @@ function renderReport(c){
         <div class="rsrow"><div class="rsblk"><div class="rsblk-l">Annual Savings</div><div class="rsblk-v ta">${f.cur(S.mods.addlfees?(_ms+c.eff_addl)*12:_as)}</div><div class="rsblk-s">projected year 1</div></div><div class="rsblk"><div class="rsblk-l">3-Year Savings</div><div class="rsblk-v ta">${f.cur(S.mods.addlfees?(_ms+c.eff_addl)*36:_tys)}</div><div class="rsblk-s">total projected</div></div></div>
       </div>
     </div>
-    ${mChart(Object.assign({},c,{pts:[{l:'Mo 1',v:_ms},{l:'Mo 6',v:_ms*6},{l:'Year 1',v:_ms*12},{l:'Year 2',v:_ms*24},{l:'Year 3',v:_ms*36}]}))}${mRebate(c)}${mFraudDeflect(c)}${mWhy()}${mAnalysis(c)}${mRec()}${mDisc()}
+    ${mChart(Object.assign({},c,{pts:[{l:'Year 1',v:_ms*12},{l:'Year 2',v:_ms*24},{l:'Year 3',v:_ms*36},{l:'Year 4',v:_ms*48},{l:'Year 5',v:_ms*60}]}))}${mRebate(c)}${mFraudDeflect(c)}${mWhy()}${mAnalysis(c)}${mRec()}${mDisc()}
     <div class="rfoot"><div class="rfoot-brand"><span class="rfoot-logo">senco</span><span class="rfoot-dot">·</span><span class="rfoot-tag">AI-Powered Payment Intelligence</span></div><div class="rfoot-conf">Confidential — Prepared exclusively for the named merchant.</div></div>`;
 }
 /* ── ZOOM SYSTEM ── */
@@ -1521,7 +1527,9 @@ function update(){
   c.senco_mo_after_rebate=c.senco_mo-c.rebate_mo;
   document.getElementById('e_rebate_mo').textContent=S.royaltyRebate?f.cur(c.rebate_mo):'—';
   document.getElementById('e_rebate_yr').textContent=S.royaltyRebate?f.cur(c.rebate_yr):'—';
-  document.getElementById('e_s_mo_after_rebate').textContent=S.royaltyRebate?f.cur(c.senco_mo_after_rebate):'—';
+  /* ── Overwrite main Senco Profit with NET (after rebate) ── */
+  document.getElementById('e_s_mo').textContent=f.cur(c.senco_mo-c.rebate_mo);
+  document.getElementById('e_s_yr').textContent=f.cur(c.senco_yr-c.rebate_yr);
   /* ── FraudDeflect ── */
   var fdCur=parseFloat(document.getElementById('fd_current').value)||0;
   var fdAft=parseFloat(document.getElementById('fd_after').value)||0;
@@ -1900,6 +1908,10 @@ var _sencoData = null;
 function showSencoReportModal(){
   var inp = ri();
   var c = compute(inp);
+  // Apply rebate to c so downstream displays (modal, PDF, copy) show NET
+  var _rbPct = parseFloat(document.getElementById('royalty_rebate_pct').value)||0;
+  c.rebate_mo = S.royaltyRebate ? c.senco_mo*(_rbPct/100) : 0;
+  c.rebate_yr = c.rebate_mo*12;
   _sencoData = {inp: inp, c: c};
   var mn = inp.merchant_name || '—';
 
@@ -1907,9 +1919,11 @@ function showSencoReportModal(){
   document.getElementById('sr-gross-bps').textContent = c.gross_margin_bps + ' bps';
   document.getElementById('sr-senco-pool-bps').textContent = c.senco_pool_bps + ' bps';
   document.getElementById('sr-net-senco-bps').textContent = c.net_senco_bps + ' bps';
-  document.getElementById('sr-senco-mo').textContent = f.cur(c.senco_mo);
-  document.getElementById('sr-senco-yr').textContent = f.cur(c.senco_yr);
-  document.getElementById('sr-senco-3y').textContent = f.cur(c.senco_mo * 36);
+  var _rebateMo_sr = c.rebate_mo || 0, _rebateYr_sr = c.rebate_yr || 0;
+  var _sencoMoNet_sr = c.senco_mo - _rebateMo_sr, _sencoYrNet_sr = c.senco_yr - _rebateYr_sr;
+  document.getElementById('sr-senco-mo').textContent = f.cur(_sencoMoNet_sr);
+  document.getElementById('sr-senco-yr').textContent = f.cur(_sencoYrNet_sr);
+  document.getElementById('sr-senco-3y').textContent = f.cur(_sencoMoNet_sr * 36);
   document.getElementById('sr-health').innerHTML = '<span class="health-pill health-' + c.health + '">' + c.healthLabel + '</span>';
 
   document.getElementById('sencoReportModal').style.display = 'flex';
@@ -1923,7 +1937,9 @@ function copySencoSummary(){
   if(!_sencoData) return;
   var inp = _sencoData.inp, c = _sencoData.c;
   var mn = inp.merchant_name || '—';
-  var senco_3y = c.senco_mo * 36;
+  var _rebateMo_n = c.rebate_mo || 0, _rebateYr_n = c.rebate_yr || 0;
+  var senco_mo_net = c.senco_mo - _rebateMo_n, senco_yr_net = c.senco_yr - _rebateYr_n;
+  var senco_3y = senco_mo_net * 36;
   var lines = [
     'SENCO — ECONOMICS SUMMARY (INTERNAL)',
     'Merchant: ' + mn,
@@ -1933,8 +1949,8 @@ function copySencoSummary(){
     'Gross Margin:      ' + c.gross_margin_bps + ' bps',
     'Senco Pool:        ' + c.senco_pool_bps + ' bps',
     'Net Senco Margin:  ' + c.net_senco_bps + ' bps',
-    'Monthly Profit:    ' + f.cur(c.senco_mo),
-    'Annual Profit:     ' + f.cur(c.senco_yr),
+    'Monthly Profit:    ' + f.cur(senco_mo_net),
+    'Annual Profit:     ' + f.cur(senco_yr_net),
     '3-Year Projected:  ' + f.cur(senco_3y),
     'Deal Health:       ' + c.healthLabel,
     '',
@@ -1957,7 +1973,9 @@ function exportSencoPDF(){
   var mn = inp.merchant_name || '—';
   var industry = inp.industry || '—';
   var dateStr = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  var senco_3y = c.senco_mo * 36;
+  var _rebateMo_n = c.rebate_mo || 0, _rebateYr_n = c.rebate_yr || 0;
+  var senco_mo_net = c.senco_mo - _rebateMo_n, senco_yr_net = c.senco_yr - _rebateYr_n;
+  var senco_3y = senco_mo_net * 36;
 
   function cur(n){ return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
@@ -2004,8 +2022,8 @@ function exportSencoPDF(){
       '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151">Senco Pool</span><span style="font-weight:700;color:#1A73E8">' + c.senco_pool_bps + ' bps</span></div>' +
       '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151">Net Senco Margin</span><span style="font-weight:700;color:#1A73E8">' + c.net_senco_bps + ' bps</span></div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb">' +
-        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">Monthly Profit</div><div style="font-size:20px;font-weight:800;color:#1A73E8;letter-spacing:-0.5px">' + cur(c.senco_mo) + '</div></div>' +
-        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">Annual Profit</div><div style="font-size:20px;font-weight:800;color:#1A73E8;letter-spacing:-0.5px">' + cur(c.senco_yr) + '</div></div>' +
+        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">Monthly Profit</div><div style="font-size:20px;font-weight:800;color:#1A73E8;letter-spacing:-0.5px">' + cur(senco_mo_net) + '</div></div>' +
+        '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">Annual Profit</div><div style="font-size:20px;font-weight:800;color:#1A73E8;letter-spacing:-0.5px">' + cur(senco_yr_net) + '</div></div>' +
         '<div style="padding:0 4px"><div style="font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#374151;margin-bottom:4px">3-Year Projected</div><div style="font-size:20px;font-weight:800;color:#07F3AB;letter-spacing:-0.5px">' + cur(senco_3y) + '</div></div>' +
       '</div>' +
       '<div style="margin-top:8px;padding-top:6px;border-top:1px solid #f3f4f6;display:flex;align-items:center;gap:6px">' +
@@ -2146,7 +2164,7 @@ function deleteSavedReport(id){
 var DEFAULT_BULLETS=[
   {icon:'🤖',title:'AI-Powered Payment Intelligence',desc:'ML models analyze every transaction in real time.',on:true},
   {icon:'📊',title:'Real-Time Transaction Analytics',desc:'Full visibility into interchange, fees, and processing costs.',on:true},
-  {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Proactive dispute management and fraud scoring built in.',on:true},
+  {icon:'🛡️',title:'Fraud Monitoring & Chargeback Protection',desc:'Stop fraud upfront and prevent chargebacks.',on:true},
   {icon:'⚡',title:'Faster Merchant Onboarding',desc:'Streamlined KYC and underwriting reduces time-to-live.',on:true},
   {icon:'💎',title:'Transparent Pricing & Optimization',desc:'No hidden fees — optimization delivered month over month.',on:true},
 ];
@@ -2189,6 +2207,10 @@ function renderSavedReportsBody(){
     var ts=formatTs(r.timestamp);
     // Compute metrics from saved inputs
     var c=compute(riFromInputs(r.inputs));
+    // Apply rebate using saved royaltyRebate flag + saved pct
+    var _rbPctSaved = parseFloat(r.inputs.royalty_rebate_pct)||0;
+    c.rebate_mo = r.royaltyRebate ? c.senco_mo*(_rbPctSaved/100) : 0;
+    c.rebate_yr = c.rebate_mo*12;
     var healthDot=c.health==='green'?'🟢':c.health==='yellow'?'🟡':'🔴';
     return '<div class="sv-card">'+
       '<div class="sv-card-head">'+
@@ -2211,8 +2233,8 @@ function renderSavedReportsBody(){
         '<div class="sv-met">'+
           '<div class="sv-met-label">💼 Senco</div>'+
           '<div class="sv-met-row"><span class="sv-met-k">Net</span><span class="sv-met-v sv-v-mint">'+c.net_senco_bps+' bps '+healthDot+'</span></div>'+
-          '<div class="sv-met-row"><span class="sv-met-k">Margin</span><span class="sv-met-v">'+f.cur(c.senco_mo,0)+'/mo</span></div>'+
-          '<div class="sv-met-row"><span class="sv-met-k">Annual</span><span class="sv-met-v">'+f.cur(c.senco_yr,0)+'</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Margin</span><span class="sv-met-v">'+f.cur(c.senco_mo-(c.rebate_mo||0),0)+'/mo</span></div>'+
+          '<div class="sv-met-row"><span class="sv-met-k">Annual</span><span class="sv-met-v">'+f.cur(c.senco_yr-(c.rebate_yr||0),0)+'</span></div>'+
         '</div>'+
         '<div class="sv-met">'+
           '<div class="sv-met-label">🔒 Agent</div>'+
@@ -2455,6 +2477,9 @@ function applyFNData(d){
 }
 
 window.addEventListener('load',function(){
+  // Default report date to today on fresh load
+  var _rd=document.getElementById('report_date');
+  if(_rd&&!_rd.value){_rd.value=new Date().toISOString().split('T')[0];}
   renderBulletEditor();update();
   migrateOldSave();
   updateSavedBadge();
